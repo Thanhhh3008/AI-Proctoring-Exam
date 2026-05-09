@@ -1,0 +1,235 @@
+.bd-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* COVER - Căn giữa nội dung giống ảnh */
+.bd-cover {
+  width: 100%;
+  height: 400px; /* Giảm chiều cao một chút */
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center; /* Căn giữa theo chiều dọc */
+  justify-content: center;
+}
+.bd-cover-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.7); /* Lớp phủ đen mờ đều */
+}
+.bd-cover-content {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  text-align: center;
+  padding: 20px;
+  color: white;
+}
+.bd-badge {
+  background-color: #2563eb;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+.bd-title {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.4;
+  margin: 0 0 20px 0;
+}
+.bd-meta {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 14px;
+  color: #e2e8f0;
+}
+.bd-meta span { display: flex; align-items: center; gap: 8px; }
+
+/* CONTAINER & LAYOUT */
+.bd-container {
+  max-width: 1200px;
+  margin: 40px auto 0 auto; /* Đẩy xuống, không cho đè lên Header nữa */
+  padding: 0 20px;
+}
+.bd-layout {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .bd-layout { flex-direction: column; }
+  .bd-sidebar { width: 100% !important; }
+}
+
+/* MAIN CONTENT (CỘT TRÁI) */
+.bd-main-article {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.bd-breadcrumb {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+.bd-sub-meta {
+  font-size: 14px;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.bd-lead {
+  font-size: 18px;
+  color: #334155;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.bd-content-html h3 {
+  font-size: 24px;
+  color: #0f172a;
+  margin: 40px 0 20px 0;
+}
+.bd-content-html p {
+  font-size: 18px;
+  line-height: 1.8;
+  color: black;
+  margin-bottom: 20px;
+}
+.bd-content-html img {
+  width: 100%;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+/* SIDEBAR (CỘT PHẢI) */
+.bd-sidebar { 
+  width: 320px; 
+  flex-shrink: 0; 
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 20px; /* Làm cho sidebar trượt theo màn hình */
+}
+
+.sidebar-box {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.sidebar-box h4 {
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 10px;
+}
+
+/* Author Box */
+.author-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.author-avatar {
+  width: 50px; height: 50px;
+  background-color: #d97706;
+  color: white;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 24px; font-weight: bold; border-radius: 4px;
+}
+.author-info h4 { border: none; padding: 0; margin: 0 0 5px 0; font-size: 16px; text-transform: none; letter-spacing: 0;}
+.author-info span { font-size: 13px; color: #64748b; }
+
+/* Share Icons */
+.bd-share-icons { display: flex; gap: 10px; }
+.share-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 16px; transition: all 0.2s;
+}
+.share-btn:hover { background: #f1f5f9; color: #2563eb; border-color: #cbd5e1; }
+
+/* Tags */
+.bd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.bd-tag-item {
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.bd-tag-item:hover { background-color: #e2e8f0; }
+
+/* RELATED ARTICLES (DƯỚI CÙNG) */
+.bd-related-section {
+  margin-top: 60px;
+  border-top: 2px solid #e2e8f0;
+  padding-top: 40px;
+}
+.bd-related-section h3 {
+  font-size: 24px; color: #0f172a; margin: 0 0 30px 0; text-align: center;
+}
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+.related-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  transition: transform 0.3s ease;
+}
+.related-card:hover { transform: translateY(-5px); }
+.related-img-wrap img { width: 100%; height: 180px; object-fit: cover; }
+.related-info { padding: 20px; }
+.related-info h4 { margin: 0 0 10px 0; font-size: 16px; color: #1e293b; line-height: 1.4; }
+.related-date { font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 5px;}
+
+/* BÌNH LUẬN */
+.bd-comments-section { margin-top: 50px; border-top: 1px solid #f1f5f9; padding-top: 30px; }
+.bd-comments-section h3 { font-size: 20px; color: #0f172a; display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
+.comment-item { display: flex; gap: 15px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f8fafc; }
+.comment-avatar { width: 45px; height: 45px; border-radius: 50%; }
+.comment-body h4 { margin: 0 0 5px 0; font-size: 15px; color: #1e293b; }
+.comment-body h4 span { font-weight: normal; color: #94a3b8; font-size: 12px; }
+.comment-body p { margin: 0; font-size: 14px; color: #475569; line-height: 1.6; }
+.comment-form { background: #f8fafc; padding: 20px; border-radius: 8px; margin-top: 30px; border: 1px solid #e2e8f0; }
+.comment-form h4 { margin: 0 0 15px 0; color: #0f172a; }
+.comment-form textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; font-family: inherit; margin-bottom: 15px; resize: vertical; outline: none; }
+.submit-comment-btn { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }

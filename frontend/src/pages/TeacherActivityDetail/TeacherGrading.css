@@ -1,0 +1,173 @@
+/* frontend/src/pages/TeacherActivityDetail/TeacherGrading.css */
+
+.grading-table-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    margin-top: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.grading-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+.grading-table th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    padding: 16px;
+    border-bottom: 2px solid #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.grading-table td {
+    padding: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    color: #1e293b;
+}
+
+.grading-table tr:hover {
+    background-color: #f1f5f9;
+    transition: background-color 0.2s;
+}
+
+/* Link tải bài làm */
+.download-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 6px 12px;
+    background-color: #eff6ff;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.download-link:hover {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* Badge Trạng thái */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-badge.success {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.status-badge.warning {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.status-badge.error {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+/* Nút Chấm điểm */
+.grade-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #1e293b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.grade-btn:hover {
+    background-color: #334155;
+}
+
+/* Form trong Modal chấm điểm */
+.grade-input-field {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2563eb;
+    margin-top: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.grade-input-field:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.grade-textarea-field {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-top: 8px;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+.grade-textarea-field:focus {
+    border-color: #2563eb;
+}
+
+/* Tùy chỉnh phần "Nhận xét" giống ảnh image_f82758.png */
+.grading-summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.grading-summary-label {
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.grading-summary-value {
+    color: #475569;
+}
+
+/* Hiệu ứng loading */
+.loader {
+    text-align: center;
+    padding: 50px;
+    color: #64748b;
+    font-style: italic;
+}
+
+/* Responsive cho bảng */
+@media (max-width: 768px) {
+    .grading-table-container {
+        overflow-x: auto;
+    }
+    
+    .grading-table {
+        min-width: 600px;
+    }
+}

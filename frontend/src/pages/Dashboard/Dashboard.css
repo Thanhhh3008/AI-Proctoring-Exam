@@ -1,0 +1,323 @@
+/* Tổng quan trang */
+.cs-dashboard-wrapper {
+    background-color: #ffffff; 
+    min-height: 100vh;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #1f1f1f;
+}
+
+/* NAVBAR */
+.cs-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 50;
+}
+
+.cs-nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #0056d2;
+    text-decoration: none;
+}
+
+.cs-nav-search {
+    flex-grow: 1;
+    max-width: 500px;
+    margin: 0 40px;
+    position: relative;
+}
+
+.cs-nav-search input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border: 1px solid #1f1f1f;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+    transition: box-shadow 0.2s;
+}
+.cs-nav-search input:focus { box-shadow: 0 0 0 2px rgba(0,86,210,0.2); border-color: #0056d2; }
+.cs-search-icon { position: absolute; left: 14px; top: 12px; color: #636363; }
+
+.cs-btn-logout {
+    background: none;
+    border: none;
+    color: #636363;
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.cs-btn-logout:hover { color: #d93025; }
+
+/* CONTAINER CHÍNH - TĂNG MAX-WIDTH LÊN 1440PX */
+.cs-main-container {
+    max-width: 1440px; /* Nội dung dàn đều sang hai bên hơn */
+    margin: 0 auto;
+    padding: 40px 60px; /* Chừa lề vừa đủ */
+}
+
+/* GREETING SECTION */
+.cs-greeting-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.cs-big-avatar {
+    width: 80px;
+    height: 80px;
+    background-color: #002d72; 
+    color: white;
+    font-size: 36px;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+
+.cs-greeting-text {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+/* AI BANNER */
+.cs-ai-banner {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #f5f5f5;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    font-size: 15px;
+    color: #1f1f1f;
+}
+
+/* BỐ CỤC 2 CỘT */
+.cs-layout-columns {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* CỘT TRÁI (SIDEBAR) - TĂNG WIDTH TỪ 300PX LÊN 380PX */
+.cs-sidebar-left {
+    width: 380px;
+    flex-shrink: 0;
+}
+
+.cs-goals-card {
+    border: 1px solid #d5d7da;
+    border-radius: 12px;
+    padding: 24px;
+    background: white;
+}
+
+.cs-goals-title {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.cs-goals-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cs-goals-list li {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.cs-goal-icon {
+    background: #f5f5f5;
+    width: 32px; height: 32px;
+    display: flex; justify-content: center; align-items: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+.cs-goal-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1f1f1f;
+    font-weight: 500;
+}
+.cs-goal-text span { color: #6b7280; font-size: 13px; font-weight: normal; display: block; margin-top: 4px;}
+
+/* CỘT PHẢI (MAIN) - CHIẾM PHẦN CÒN LẠI */
+.cs-main-right {
+    flex-grow: 1;
+}
+
+/* TABS DẠNG PILL */
+.cs-tabs-pill-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.cs-tab-pill {
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: 1px solid #d5d7da;
+    background: white;
+    color: #1f1f1f;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cs-tab-pill:hover { background: #f5f5f5; }
+
+.cs-tab-pill.active {
+    background: #1f1f1f;
+    color: white;
+    border-color: #1f1f1f;
+}
+
+/* DANH SÁCH KHÓA HỌC (THẺ NGANG CÓ THỂ KÉO DÀI HƠN) */
+.cs-course-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cs-course-card-horizontal {
+    display: flex;
+    border: 1px solid #d5d7da;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+    background: white;
+}
+
+.cs-course-card-horizontal:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.cs-card-img {
+    width: 280px; /* Tăng chiều rộng ảnh */
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.cs-card-content {
+    padding: 24px 30px; /* Tăng padding */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cs-card-university {
+    font-size: 13px;
+    color: #636363;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.cs-card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    color: #1f1f1f;
+}
+
+.cs-card-meta {
+    font-size: 14px;
+    color: #636363;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* UI THANH TIẾN ĐỘ */
+.cs-progress-wrapper {
+    margin-top: auto;
+    margin-bottom: 20px;
+}
+
+.cs-progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #636363;
+    margin-bottom: 8px;
+}
+
+.cs-progress-bar-bg {
+    width: 100%;
+    height: 6px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.cs-progress-bar-fill {
+    height: 100%;
+    background-color: #0056d2; /* Màu xanh tiến độ */
+    border-radius: 4px;
+}
+
+/* Nút Tiếp tục học */
+.cs-card-btn-go {
+    align-self: flex-start;
+    background: #0056d2;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+.cs-course-card-horizontal:hover .cs-card-btn-go { background: #00419e; }
+
+/* TRẠNG THÁI TRỐNG */
+.cs-empty-state {
+    padding: 60px;
+    text-align: center;
+    border: 1px solid #d5d7da;
+    border-radius: 12px;
+    color: #636363;
+}
+
+.cs-btn-primary {
+    background: #0056d2; color: white; border: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 15px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .cs-layout-columns { flex-direction: column; }
+    .cs-sidebar-left { width: 100%; }
+    .cs-course-card-horizontal { flex-direction: column; }
+    .cs-card-img { width: 100%; height: 200px; }
+}

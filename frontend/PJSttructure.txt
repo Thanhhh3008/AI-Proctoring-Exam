@@ -1,0 +1,12 @@
+frontend/src/
+├── api/
+│   ├── axiosClient.ts      // Mỗi khi gửi yêu cầu lên Backend (như cập nhật khuôn mặt), chúng ta phải kẹp cái accessToken vào. Nếu file nào cũng viết code nhét token thì rất cực. Chúng ta sẽ tạo một file cấu hình chung.
+│   └── authApi.ts          Định nghĩa sẵn các thao tác liên quan đến Đăng nhập:
+├── components/             // Chứa các component dùng chung (Card, Button...)
+├── pages/                  // Chứa các trang giao diện chính
+│   ├── Login/
+│   │   └── LoginPage.tsx   // Trang đăng nhập
+│   └── Dashboard/
+│       └── Dashboard.tsx   // Trang danh sách khóa học (như ảnh bạn gửi)
+├── App.tsx                 // Nơi cấu hình Router chuyển trang
+└── main.tsx

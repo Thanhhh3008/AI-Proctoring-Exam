@@ -1,0 +1,386 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 1. ĐỊNH NGHĨA ENUM
+// ==========================================
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  ESSAY
+}
+
+enum ExamStatus {
+  UPCOMING    // Chưa bắt đầu (Sắp diễn ra)
+  ONGOING     // Đang diễn ra
+  ENDED       // Đã kết thúc (Hệ thống hoặc GV đóng)
+  LOCKED      // Đã khóa (GV khóa khẩn cấp/thủ công)
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+// ĐÃ GỘP 2 ENUM SESSION STATUS LẠI THÀNH 1
+enum SessionStatus {
+  IN_PROGRESS      // Đang làm bài
+  SUBMITTED        // Nộp bình thường
+  TIMED_OUT        // Hết giờ tự nộp
+  ABANDONED        // Bỏ thi
+  FORCED_SUBMITTED // Bị giám thị ép nộp
+  GRADED           // Đã chấm điểm
+}
+
+enum ViolationType {
+  TAB_SWITCH
+  MULTIPLE_FACES
+  NO_FACE
+  DIFFERENT_PERSON
+  LOOKING_AWAY
+  TAB_SWITCHED
+  FULLSCREEN_EXITED
+  COPY_PASTE
+  PHONE_DETECTED
+  STATIC_IMAGE
+}
+
+enum NotificationType {
+  SYSTEM
+  EXAM
+  CLASS
+  EXAM_REMINDER
+  CHEATING_ALERT
+}
+
+enum ActivityType {
+  FILE
+  URL
+  ASSIGNMENT
+  EXAM
+}
+
+// ==========================================
+// 2. ĐỊNH NGHĨA CÁC BẢNG CỐT LÕI (ID LÀ UUID)
+// ==========================================
+
+model User {
+  id                String   @id @default(uuid()) @db.Uuid
+  email             String   @unique @db.VarChar(255)
+  passwordHash      String   @map("password_hash") @db.VarChar(255)
+  fullName          String   @map("full_name") @db.VarChar(100)
+  role              UserRole @default(STUDENT)
+  
+  avatarUrl         String?  @map("avatar_url") @db.Text
+  baseFaceUrl       String?  @map("base_face_url") @db.Text
+  isVerified        Boolean  @default(false) @map("is_verified")
+  verificationToken String?  @map("verification_token") @db.VarChar(255)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  teachingClasses        Class[]                @relation("TeacherClasses")
+  questionBanks          QuestionBank[]         @relation("TeacherBanks")
+  createdExams           Exam[]                 @relation("TeacherExams")
+  classStudents          ClassStudent[]
+  examSessions           ExamSession[]
+  notifications          Notification[]
+  assignmentSubmissions  AssignmentSubmission[]
+  payments               Payment[]
+  classReviews           ClassReview[]
+  @@map("users")
+}
+
+model Subject {
+  id          String   @id @default(uuid()) @db.Uuid
+  subjectCode String   @unique @map("subject_code") @db.VarChar(20)
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  classes     Class[]
+
+  @@map("subjects")
+}
+
+model Class {
+  id            String   @id @default(uuid()) @db.Uuid
+  subjectId     String   @map("subject_id") @db.Uuid
+  teacherId     String?  @map("teacher_id") @db.Uuid
+  classCode     String   @unique @map("class_code") @db.VarChar(50)
+  price         Float    @default(0) @map("price")
+  maxStudents   Int      @default(50) @map("max_students")
+  status        String   @default("ACTIVE") @db.VarChar(20)
+  description   String?  @db.Text
+  coverImageUrl String?  @map("cover_image_url") @db.Text
+  
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  subject        Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacher        User?           @relation("TeacherClasses", fields: [teacherId], references: [id], onDelete: SetNull)
+  students       ClassStudent[]
+  exams          Exam[]
+  courseSections CourseSection[]
+  payments       Payment[]
+  reviews        ClassReview[]
+  questionBanks  QuestionBank[]
+  
+  @@map("classes")
+}
+
+model ClassStudent {
+  classId   String   @map("class_id") @db.Uuid
+  studentId String   @map("student_id") @db.Uuid
+  joinedAt  DateTime @default(now()) @map("joined_at") @db.Timestamptz()
+
+  class     Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student   User  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([classId, studentId])
+  @@map("class_students")
+}
+
+model CourseSection {
+  id          String   @id @default(uuid()) @db.Uuid
+  classId     String   @map("class_id") @db.Uuid
+  title       String   @db.VarChar(255)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  description String?  @db.Text
+  
+  class       Class            @relation(fields: [classId], references: [id], onDelete: Cascade)
+  activities  CourseActivity[]
+
+  @@map("course_sections")
+}
+
+
+model QuestionBank {
+  id        String   @id @default(uuid()) @db.Uuid
+  classId   String   @map("class_id") @db.Uuid 
+  teacherId String?  @map("teacher_id") @db.Uuid
+  name      String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade) 
+  teacher   User?    @relation("TeacherBanks", fields: [teacherId], references: [id], onDelete: SetNull)
+  questions Question[]
+
+  @@map("question_banks")
+}
+
+model Question {
+  id            String             @id @default(uuid()) @db.Uuid
+  bankId        String             @map("bank_id") @db.Uuid
+  questionType  QuestionType       @default(MULTIPLE_CHOICE) @map("question_type")
+  difficulty    QuestionDifficulty @default(MEDIUM)
+  content       String             @db.Text
+  options       Json?              @db.JsonB
+  correctAnswer String?            @map("correct_answer") @db.Text
+  defaultPoints Decimal            @default(1.0) @map("default_points") @db.Decimal(5, 2)
+  createdAt     DateTime           @default(now()) @map("created_at") @db.Timestamptz()
+
+  bank          QuestionBank     @relation(fields: [bankId], references: [id], onDelete: Cascade)
+  examQuestions ExamQuestion[]
+  sessionAnswers SessionAnswer[] // Cập nhật liên kết sang SessionAnswer chuẩn
+
+  @@map("questions")
+}
+
+model Exam {
+  id              String         @id @default(uuid()) @db.Uuid
+  classId         String         @map("class_id") @db.Uuid
+  teacherId       String?        @map("teacher_id") @db.Uuid
+  title           String         @db.VarChar(255)
+  description     String?        @db.Text
+  startTime       DateTime       @map("start_time") @db.Timestamptz()
+  endTime         DateTime       @map("end_time") @db.Timestamptz()
+  durationMinutes Int            @map("duration_minutes")
+  status          ExamStatus     @default(UPCOMING)
+  strictMode      Boolean        @default(true) @map("strict_mode")
+  requireCamera   Boolean        @default(true) @map("require_camera")
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz()
+  
+  maxQuestions    Int            @default(10) @map("max_questions")
+  generationRules Json?          @map("generation_rules") @db.JsonB
+
+  class           Class          @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher         User?          @relation("TeacherExams", fields: [teacherId], references: [id], onDelete: SetNull)
+  examQuestions   ExamQuestion[]
+  examSessions    ExamSession[]
+  courseActivity  CourseActivity? 
+
+  @@map("exams")
+}
+
+model ExamQuestion {
+  examId     String  @map("exam_id") @db.Uuid
+  questionId String  @map("question_id") @db.Uuid
+  points     Decimal @default(1.0) @db.Decimal(5, 2)
+
+  exam       Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([examId, questionId])
+  @@map("exam_questions")
+}
+
+model ExamSession {
+  id           String        @id @default(uuid()) @db.Uuid
+  examId       String        @map("exam_id") @db.Uuid
+  studentId    String        @map("student_id") @db.Uuid
+  startTime    DateTime      @default(now()) @map("start_time") @db.Timestamptz()
+  submitTime   DateTime?     @map("submit_time") @db.Timestamptz()
+  status       SessionStatus @default(IN_PROGRESS)
+  totalScore   Decimal?      @map("total_score") @db.Decimal(5, 2)
+  ipAddress    String?       @map("ip_address") @db.VarChar(45)
+  userAgent    String?       @map("user_agent") @db.Text
+  referencePhoto String?     @map("reference_photo") @db.Text
+
+  exam          Exam            @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student       User            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  answers       SessionAnswer[] // Thay thế StudentAnswer cũ
+  violationLogs ViolationLog[]
+
+  @@unique([examId, studentId])
+  @@map("exam_sessions")
+}
+
+// Bảng chi tiết từng câu trả lời trong quá trình làm bài
+model SessionAnswer {
+  id             String      @id @default(uuid()) @db.Uuid
+  sessionId      String      @map("session_id") @db.Uuid
+  questionId     String      @map("question_id") @db.Uuid
+  selectedAnswer String?     @db.Text 
+  isFlagged      Boolean     @default(false)
+  order          Int         
+ achievedScore Decimal? @map("achieved_score") @db.Decimal(5, 2)
+
+  session        ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question       Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, questionId]) // Đảm bảo 1 session chỉ có 1 đáp án cho 1 câu hỏi
+  @@map("session_answers")
+}
+
+model ViolationLog {
+  id          String        @id @default(uuid()) @db.Uuid
+  sessionId   String        @map("session_id") @db.Uuid
+  type        ViolationType
+  timestamp   DateTime      @default(now()) @db.Timestamptz()
+  evidenceUrl String?       @map("evidence_url") @db.Text
+  metadata    Json?         @db.JsonB
+
+  session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("violation_logs")
+}
+
+model Notification {
+  id          String           @id @default(uuid()) @db.Uuid
+  userId      String           @map("user_id") @db.Uuid
+  type        NotificationType @default(SYSTEM)
+  title       String           @db.VarChar(255)
+  content     String?          @db.Text
+  referenceId String?          @map("reference_id") @db.Uuid
+  isRead      Boolean          @default(false) @map("is_read")
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ==========================================
+// 3. CÁC BẢNG QUẢN LÝ HỌC LIỆU VÀ BÀI TẬP
+// ==========================================
+
+model CourseActivity {
+  id              String         @id @default(uuid()) @db.Uuid
+  sectionId       String         @map("section_id") @db.Uuid
+  type            ActivityType
+  title           String         @db.VarChar(255)
+  description     String?        @db.Text
+  fileUrl         String?        @map("file_url") @db.Text
+  dueDate         DateTime?      @map("due_date") @db.Timestamptz()
+  examId          String?        @unique @map("exam_id") @db.Uuid
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz()
+
+  section         CourseSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  exam            Exam?          @relation(fields: [examId], references: [id], onDelete: SetNull)
+  submissions     AssignmentSubmission[]
+  isHidden        Boolean        @default(true) @map("is_hidden") 
+  isLocked        Boolean        @default(false) @map("is_locked")
+  lockAfterDueDate Boolean       @default(false) @map("lock_after_due_date")
+  @@map("course_activities")
+}
+
+model AssignmentSubmission {
+  id          String   @id @default(uuid()) @db.Uuid
+  activityId  String   @map("activity_id") @db.Uuid
+  studentId   String   @map("student_id") @db.Uuid
+  fileUrl     String   @map("file_url") @db.Text
+  submittedAt DateTime @default(now()) @map("submitted_at") @db.Timestamptz()
+  score       Decimal? @db.Decimal(5, 2)
+  feedback    String?  @db.Text
+
+  activity CourseActivity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  student  User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, studentId])
+  @@map("assignment_submissions")
+}
+
+model ClassReview {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId   String   @db.Uuid
+  studentId String   @db.Uuid
+  rating    Int      @default(5) 
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  class   Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student User  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, studentId]) 
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  otp       String   @db.VarChar(6)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  @@map("password_resets")
+}
+
+model Payment {
+  id            String   @id @default(uuid()) @db.Uuid
+  orderId       String   @unique @db.VarChar(100) 
+  studentId     String   @map("student_id") @db.Uuid
+  classId       String   @map("class_id") @db.Uuid
+  amount        Float
+  status        String   @default("PENDING") 
+  paymentMethod String   @default("MOMO")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  student       User     @relation(fields: [studentId], references: [id])
+  class         Class    @relation(fields: [classId], references: [id])
+
+  @@map("payments")
+}

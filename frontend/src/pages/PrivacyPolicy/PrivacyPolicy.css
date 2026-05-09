@@ -1,0 +1,239 @@
+/* src/pages/PrivacyPolicy/PrivacyPolicy.css */
+
+.privacy-container {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+/* Header Banner */
+.privacy-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    padding: 80px 24px;
+    text-align: center;
+    color: white;
+    border-bottom: 5px solid #2563eb;
+}
+
+.privacy-header-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.privacy-header h1 {
+    font-size: 42px;
+    margin: 0 0 15px 0;
+    font-weight: 800;
+}
+
+.privacy-header p {
+    font-size: 16px;
+    color: #cbd5e1;
+    margin: 0 0 25px 0;
+}
+
+.privacy-header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 14px;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+/* Main Body */
+.privacy-body {
+    max-width: 1200px;
+    margin: -40px auto 60px auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    padding: 40px;
+    position: relative;
+    z-index: 10;
+}
+
+.privacy-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 50px auto;
+    font-size: 18px;
+    color: #475569;
+}
+
+.privacy-intro h2 {
+    color: #0f172a;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* Bố cục 2 cột */
+.privacy-content-grid {
+    display: flex;
+    gap: 50px;
+    align-items: flex-start;
+}
+
+.privacy-main-content {
+    flex: 7;
+}
+
+.privacy-sidebar {
+    flex: 3;
+    position: sticky;
+    top: 40px;
+}
+
+/* Các đoạn nội dung (Articles) */
+.privacy-article {
+    margin-bottom: 40px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.privacy-article:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.privacy-article h3 {
+    font-size: 22px;
+    color: #1e293b;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.article-icon {
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 36px; /* Icon size inside background */
+}
+
+.privacy-article p {
+    margin: 0 0 15px 0;
+    color: #334155;
+    font-size: 16px;
+}
+
+.privacy-article ul {
+    margin: 0;
+    padding-left: 24px;
+    color: #334155;
+}
+
+.privacy-article li {
+    margin-bottom: 10px;
+}
+
+/* Hộp cảnh báo (Alert box) */
+.privacy-alert {
+    background-color: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 15px 20px;
+    border-radius: 0 8px 8px 0;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #92400e;
+}
+
+/* Sidebar - Mục lục (TOC) */
+.privacy-toc {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+}
+
+.privacy-toc h4 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #0f172a;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
+}
+
+.privacy-toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.privacy-toc li {
+    margin-bottom: 12px;
+}
+
+.privacy-toc a {
+    text-decoration: none;
+    color: #475569;
+    font-weight: 500;
+    transition: color 0.2s;
+    display: block;
+}
+
+.privacy-toc a:hover {
+    color: #2563eb;
+}
+
+/* Sidebar - Liên hệ */
+.privacy-contact {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+
+.privacy-contact h4 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #1e3a8a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.privacy-contact p {
+    font-size: 14px;
+    color: #1e40af;
+    margin: 0 0 20px 0;
+}
+
+.privacy-email-btn {
+    display: inline-block;
+    background-color: #2563eb;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.privacy-email-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .privacy-content-grid {
+        flex-direction: column;
+    }
+    .privacy-sidebar {
+        width: 100%;
+        position: static;
+    }
+}

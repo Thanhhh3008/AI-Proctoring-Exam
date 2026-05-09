@@ -1,0 +1,17 @@
+DTO (Data Transfer Object) để kiểm tra dữ liệu đầu vào
+
+prisma/                 <-- (1) THƯ MỤC LÕI CỦA PRISMA (Nằm ngoài src)
+    │   └── schema.prisma       <-- Nơi khai báo các bảng CSDL (User, Exam...).
+prisma.module.ts  <-- Cầu nối để code NestJS gọi được CSDL.
+
+src/auth/strategies/jwt.strategy.ts Theo cấu trúc chuẩn Enterprise, để xác thực xem cái Token sinh viên gửi lên có hợp lệ không.
+
+src/common/guards/jwt-auth.guard.ts 👉 Đây là Guard dùng để bảo vệ route bằng JWT(dùng ở users.controller)
+
+Nó nói với NestJS rằng:
+
+"Route này phải có token hợp lệ mới được truy cập"
+
+🧠 Guard là gì trong NestJS?
+
+Guard = lớp kiểm tra trước khi request được xử lý

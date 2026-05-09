@@ -1,0 +1,418 @@
+/* =========================================
+   RESET & BỐ CỤC CHUNG
+========================================= */
+.act-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fff;
+  min-height: 100vh;
+  color: #333;
+}
+
+/* =========================================
+   1. BREADCRUMB (THANH ĐIỀU HƯỚNG TRÊN CÙNG)
+========================================= */
+.act-breadcrumb-wrapper {
+  padding: 15px 40px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafc;
+}
+
+.act-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.act-breadcrumb-item {
+  color: #6b7280;
+  text-decoration: none;
+  padding-right: 15px;
+  position: relative;
+}
+
+.act-breadcrumb-item::after {
+  content: '';
+  position: absolute;
+  right: 5px;
+  color: #ccc;
+}
+
+/* Thẻ đang chọn (Màu xanh lá giống ảnh) */
+.act-breadcrumb-active {
+  background-color: #81c784;
+  color: white;
+  padding: 4px 15px;
+  border-radius: 4px;
+  font-weight: 500;
+  position: relative;
+}
+
+/* Tạo mũi tên nhọn cho breadcrumb active */
+.act-breadcrumb-active::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  top: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 10px solid #81c784;
+}
+
+/* =========================================
+   2. KHU VỰC TIÊU ĐỀ
+========================================= */
+.act-main-content {
+  margin: 30px 40px; /* Căn sát trái, đồng bộ với trang Course Detail */
+}
+.act-header-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.act-icon-box {
+  width: 45px;
+  height: 45px;
+  background-color: #f472b6; /* Màu hồng nhạt giống ảnh */
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.act-title-text {
+  margin: 0;
+  color: #f97316; /* Màu cam giống ảnh */
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.act-type-label {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+/* =========================================
+   3. KHU VỰC THÔNG TIN & QUY ĐỊNH LÀM BÀI
+========================================= */
+.act-info-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.act-rules-list {
+  padding-left: 20px;
+  margin: 10px 0 0 0;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.act-meta-info {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* =========================================
+   4. NÚT BẤM (BUTTONS)
+========================================= */
+.act-btn {
+  background-color: #81c784; /* Xanh lá giống ảnh */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-bottom: 30px;
+}
+
+.act-btn:hover {
+  background-color: #66bb6a;
+}
+
+/* =========================================
+   5. BẢNG TRẠNG THÁI (CHO BÀI TẬP)
+========================================= */
+.act-status-heading {
+  color: #f97316;
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.act-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.act-table th, .act-table td {
+  border: 1px solid #e5e7eb;
+  padding: 12px 15px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.act-table th {
+  background-color: #f9fafc;
+  width: 25%;
+  font-weight: 600;
+  color: #374151;
+}
+
+.act-table td {
+  color: #4b5563;
+}
+
+/* =========================================
+   6. YÊU CẦU BÀI TẬP (HƯỚNG DẪN)
+========================================= */
+.act-requirements-box {
+  margin-bottom: 30px;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+}
+.act-requirements-box h4 {
+  margin: 15px 0 5px 0;
+  color: #111827;
+  font-size: 15px;
+}
+.act-requirements-box ul, .act-requirements-box ol {
+  margin-top: 5px;
+  padding-left: 20px;
+}
+
+/* =========================================
+   7. KHU VỰC KÉO THẢ FILE
+========================================= */
+.act-upload-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #f97316;
+  font-size: 20px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.act-upload-container {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  background-color: #fff;
+}
+
+.act-upload-toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #f9fafc;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.act-toolbar-group {
+  display: flex;
+  gap: 5px;
+}
+
+.act-toolbar-btn {
+  background-color: #81c784;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.act-toolbar-btn.orange {
+  background-color: #f97316;
+}
+
+.act-upload-dropzone-wrapper {
+  padding: 20px;
+}
+
+.act-upload-dropzone {
+  border: 2px dashed #9ca3af;
+  border-radius: 6px;
+  padding: 50px 20px;
+  text-align: center;
+  background-color: #f9fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  color: #4b5563;
+}
+
+.act-upload-icon-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #9ca3af;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.act-max-size-info {
+  text-align: right;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+/* =========================================
+   8. NÚT LƯU & HỦY BỎ
+========================================= */
+.act-action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.act-btn-save {
+  background-color: #f97316; /* Cam */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.act-btn-save:hover { background-color: #ea580c; }
+
+.act-btn-cancel {
+  background-color: #81c784; /* Xanh lá */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.act-btn-cancel:hover { background-color: #66bb6a; }
+
+.act-btn-mark {
+  background-color: transparent;
+  border: 1px solid #d1d5db;
+  color: #4b5563;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+/* =========================================
+   9. HIỆU ỨNG KÉO THẢ & DANH SÁCH FILE 
+========================================= */
+/* Đổi màu khi đang kéo file lơ lửng trên vùng dropzone */
+.act-upload-dropzone.drag-active {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+.act-upload-dropzone {
+  cursor: pointer; /* Biến con trỏ thành bàn tay để biết có thể click */
+  transition: all 0.2s ease;
+}
+
+.act-upload-dropzone:hover {
+  border-color: #6b7280;
+  background-color: #f3f4f6;
+}
+
+/* Giao diện từng file đã được chọn */
+.act-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.act-file-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: 0.2s;
+}
+
+.act-file-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.act-file-icon {
+  color: #3b82f6;
+  font-size: 24px;
+}
+
+.act-file-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  overflow: hidden;
+}
+
+.act-file-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.act-file-size {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.act-btn-remove-file {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.act-btn-remove-file:hover {
+  background-color: #fee2e2;
+}

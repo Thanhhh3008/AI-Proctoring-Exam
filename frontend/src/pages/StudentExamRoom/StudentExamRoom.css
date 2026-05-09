@@ -1,0 +1,189 @@
+/* ========================================================= */
+/* StudentExamRoom.css - LOBBY CŨ + EXAM ROOM (CLEAN & FLAT) */
+/* ========================================================= */
+
+.exam-room-container {
+  min-height: 100vh;
+  background-color: #f8f9fa; /* Nền xám rất nhạt */
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1f2937;
+  user-select: none; /* Chống bôi đen copy */
+}
+
+/* ================= 1. LOBBY SCREEN (DẠNG THẺ GIỮ NGUYÊN BẢN CŨ) ================= */
+.exam-room-container .exam-lobby {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.exam-room-container .lobby-card {
+  background: #ffffff;
+  max-width: 600px;
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  text-align: center;
+}
+
+.exam-room-container .lobby-title { font-size: 28px; font-weight: 800; color: #0f172a; margin: 0 0 25px 0; }
+.exam-room-container .lobby-meta { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid #e2e8f0; }
+.exam-room-container .meta-item { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 10px 20px; border-radius: 8px; color: #475569; font-weight: 600; font-size: 15px; border: 1px solid #e2e8f0; }
+.exam-room-container .lobby-rules { background-color: #fff1f2; border: 1px solid #fecaca; border-radius: 12px; padding: 25px; text-align: left; margin-bottom: 30px; }
+.exam-room-container .lobby-rules-header { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: bold; color: #e11d48; margin-bottom: 15px; }
+.exam-room-container .lobby-rules-list { padding-left: 20px; color: #475569; line-height: 1.7; font-size: 15px; margin: 0; }
+.exam-room-container .lobby-rules-list li { margin-bottom: 8px; }
+.exam-room-container .btn-start-exam { background-color: #2563eb; color: white; border: none; padding: 16px 32px; font-size: 16px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border-radius: 8px; width: 100%; transition: all 0.2s ease; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); }
+.exam-room-container .btn-start-exam:hover { background-color: #1d4ed8; transform: translateY(-2px); }
+
+/* ================= 2. EXAM INTERFACE (FLAT DESIGN) ================= */
+.exam-room-container .exam-top-bar {
+  padding: 20px 30px;
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.exam-room-container .exam-course-name { color: #111827; font-size: 20px; font-weight: 700; margin: 0; }
+
+.exam-room-container .exam-main-layout {
+  display: flex; gap: 40px; padding: 40px 30px; align-items: flex-start; max-width: 1400px; margin: 0 auto;
+}
+.exam-room-container .exam-questions-area { flex: 1; display: flex; flex-direction: column; gap: 40px; } /* Khoảng cách giữa các câu hỏi rộng ra */
+
+/* Câu hỏi dạng Tối giản, không viền */
+.exam-room-container .modern-q-card {
+  background: transparent; /* Loại bỏ nền trắng dạng thẻ */
+  border: none; /* Loại bỏ viền */
+  padding: 0; /* Xóa padding */
+  box-shadow: none; /* Xóa bóng */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.exam-room-container .modern-q-header {
+  display: flex; align-items: flex-start; gap: 15px; margin: 0;
+}
+.exam-room-container .modern-q-title { font-size: 18px; font-weight: 700; color: #111827; margin: 0; white-space: nowrap; }
+.exam-room-container .modern-q-text { font-size: 18px; color: #111827; line-height: 1.6; margin: 0; font-weight: 500;} /* Chữ to, in đậm nhẹ như ảnh */
+
+/* Các đáp án trắc nghiệm dạng List đơn giản (Giống ảnh) */
+.exam-room-container .modern-options { display: flex; flex-direction: column; gap: 15px; padding-left: 40px; } /* Lùi lề vào trong */
+.exam-room-container .modern-option {
+  display: flex; align-items: center; gap: 12px; cursor: pointer; background: transparent; font-size: 16px; color: #374151;
+}
+
+/* Styling nút Radio cho to và rõ hơn */
+.exam-room-container .modern-option input[type="radio"] { 
+  margin: 0; width: 22px; height: 22px; cursor: pointer; accent-color: #2563eb; 
+}
+
+.exam-room-container .modern-clear-choice {
+  font-size: 13px; color: #6b7280; cursor: pointer; margin-top: 10px; margin-left: 40px; display: inline-flex; align-items: center; transition: color 0.2s; text-decoration: underline;
+}
+.exam-room-container .modern-clear-choice:hover { color: #111827; }
+
+/* Tự luận */
+.exam-room-container .modern-textarea {
+  width: calc(100% - 40px); margin-left: 40px; padding: 15px; border: 1px solid #d1d5db; border-radius: 8px; min-height: 150px; font-family: inherit; font-size: 16px; line-height: 1.6; resize: vertical; outline: none; transition: border-color 0.2s; background: white;
+}
+.exam-room-container .modern-textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+/* Phân trang */
+.exam-room-container .exam-pagination { display: flex; justify-content: space-between; margin-top: 20px; border-top: 1px solid #e5e7eb; padding-top: 20px; }
+.exam-room-container .btn-nav {
+  background: white; color: #374151; border: 1px solid #d1d5db; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;
+}
+.exam-room-container .btn-nav:hover:not(:disabled) { background: #f3f4f6; color: #111827; }
+.exam-room-container .btn-nav:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* CỘT SIDEBAR BÊN PHẢI */
+.exam-room-container .exam-sidebar {
+  width: 320px; position: sticky; top: 90px; display: flex; flex-direction: column; gap: 20px;
+}
+
+.exam-room-container .timer-card {
+  background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; text-align: center; color: #dc2626; font-size: 28px; font-weight: 800; font-family: monospace; display: flex; justify-content: center; align-items: center; gap: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+}
+
+.exam-room-container .sidebar-card {
+  background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+}
+
+.exam-room-container .student-profile {
+  display: flex; align-items: center; gap: 15px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #f3f4f6;
+}
+.exam-room-container .student-avatar {
+  width: 45px; height: 45px; background: #f1f5f9; color: #334155; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; border: 1px solid #e2e8f0;
+}
+.exam-room-container .student-info { display: flex; flex-direction: column; gap: 4px; }
+.exam-room-container .student-name { font-size: 15px; font-weight: 700; color: #111827; }
+.exam-room-container .student-role { font-size: 12px; color: #6b7280; }
+
+.exam-room-container .q-grid-title { color: #374151; font-size: 15px; font-weight: 700; margin: 0 0 15px 0; display: flex; justify-content: space-between; }
+.exam-room-container .q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 30px; }
+
+/* Nút lưới câu hỏi */
+.exam-room-container .modern-grid-btn {
+  aspect-ratio: 1; border-radius: 4px; border: 1px solid #d1d5db; background: white; font-weight: 600; color: #4b5563; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 13px;
+}
+.exam-room-container .modern-grid-btn:hover { border-color: #9ca3af; background: #f3f4f6; }
+.exam-room-container .modern-grid-btn.answered { background: #64748b; color: white; border-color: #475569; } /* Nút đổi màu xám đậm khi đã làm */
+.exam-room-container .modern-grid-btn.active { outline: 2px solid #2563eb; outline-offset: 2px; border-color: #2563eb; color: #2563eb; font-weight: 800; }
+
+.exam-room-container .btn-submit-final {
+  background-color: #10b981; color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background-color 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+}
+.exam-room-container .btn-submit-final:hover { background-color: #059669; }
+
+/* Overlay cảnh báo Fullscreen */
+.exam-room-container .fullscreen-warning-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background: rgba(17, 24, 39, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; }
+.exam-room-container .fullscreen-warning-overlay .btn-resume { background: #e11d48; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 30px; transition: background 0.2s; }
+.exam-room-container .fullscreen-warning-overlay .btn-resume:hover { background: #be123c; }
+
+
+/* ================= CUSTOM MODAL UI ================= */
+.exam-room-container .custom-modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(17, 24, 39, 0.7);
+  z-index: 100000;
+  display: flex; justify-content: center; align-items: center;
+  backdrop-filter: blur(4px);
+}
+.exam-room-container .custom-modal {
+  background: white; border-radius: 16px; padding: 30px; max-width: 400px; width: 90%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); text-align: center;
+  animation: modalFadeIn 0.2s ease-out;
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.exam-room-container .custom-modal-icon {
+  margin-bottom: 15px; display: flex; justify-content: center;
+}
+.exam-room-container .custom-modal-title {
+  font-size: 22px; font-weight: 800; margin: 0 0 10px; color: #111827;
+}
+.exam-room-container .custom-modal-msg {
+  font-size: 16px; color: #4b5563; margin-bottom: 25px; line-height: 1.6;
+}
+.exam-room-container .custom-modal-actions {
+  display: flex; justify-content: center; gap: 15px;
+}
+.exam-room-container .btn-modal-cancel {
+  background: #f3f4f6; color: #374151; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; transition: 0.2s; flex: 1;
+}
+.exam-room-container .btn-modal-cancel:hover { background: #e5e7eb; }
+.exam-room-container .btn-modal-confirm {
+  background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; transition: 0.2s; flex: 1;
+}
+.exam-room-container .btn-modal-confirm:hover { background: #1d4ed8; }

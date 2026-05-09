@@ -1,0 +1,697 @@
+/* =========================================
+   RESET & BIẾN MÀU SẮC DÙNG CHUNG
+========================================= */
+.home-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: #fff;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   1. NAVBAR
+========================================= */
+.hp-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5%;
+  height: 70px;
+  background-color: #2b56a4; /* Màu xanh vnEdu */
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.hp-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+.hp-nav-links {
+  display: flex;
+  gap: 30px;
+  font-size: 14px;
+}
+
+.hp-nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.hp-btn-login {
+  padding: 8px 25px;
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.hp-btn-login:hover {
+  background-color: white;
+  color: #2b56a4;
+}
+
+/* =========================================
+   2. BANNER
+========================================= */
+.hp-banner {
+  width: 100%;
+  height: 400px;
+  background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hp-banner-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(43, 86, 164, 0.7); /* Phủ mờ xanh */
+}
+
+.hp-banner-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: white;
+}
+
+.hp-banner-content h1 {
+  font-size: 45px;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* =========================================
+   3. LỢI ÍCH KHI TRIỂN KHAI (BỐ CỤC 3 CỘT CHUẨN ẢNH)
+========================================= */
+.hp-benefits-section {
+  padding: 80px 5%;
+  background-color: #F0F3FB; 
+  position: relative;
+  overflow: hidden;
+}
+
+.hp-section-title {
+  text-align: center;
+  font-size: 28px;
+  color: #1a2b4c;
+  margin-bottom: 60px;
+  font-weight: bold;
+}
+
+.hp-benefits-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 1250px;
+  margin: 0 auto;
+  gap: 0px; /* Bỏ gap vì chúng ta dùng margin âm để tạo hiệu ứng đè */
+}
+
+/* --- CỘT TRÁI & PHẢI --- */
+.hp-benefits-col-left,
+.hp-benefits-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 25px; /* Khoảng cách giữa các thẻ dọc */
+  z-index: 2; /* Để thẻ nổi lên trên ảnh */
+  flex: 1;
+}
+
+.hp-benefits-col-left {
+  margin-right: -40px; /* Ép cột trái lấn sang phải đè lên ảnh */
+  align-items: flex-end; 
+}
+
+.hp-benefits-col-right {
+  margin-left: -40px; /* Ép cột phải lấn sang trái đè lên ảnh */
+  align-items: flex-start;
+}
+
+/* --- ĐỊNH DẠNG TỪNG THẺ (CARD) --- */
+.hp-benefit-card {
+  background: white;
+  padding: 25px 30px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06); /* Đổ bóng nhẹ nhàng */
+  width: 100%;
+  max-width: 380px;
+}
+
+.hp-benefit-card h3 {
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: bold;
+}
+
+.hp-benefit-card ul {
+  padding-left: 18px;
+  margin: 0;
+  font-size: 13.5px;
+  color: #444;
+  line-height: 1.6;
+}
+
+.hp-benefit-card li {
+  margin-bottom: 6px;
+}
+
+/* Màu chữ tiêu đề giống ảnh */
+.card-color-1 h3 { color: #e91e63; } /* Đỏ hồng */
+.card-color-2 h3 { color: #2196f3; } /* Xanh dương */
+.card-color-3 h3 { color: #ff5722; } /* Cam */
+.card-color-4 h3 { color: #9c27b0; } /* Tím */
+.card-color-5 h3 { color: #00bfa5; } /* Xanh ngọc */
+
+/* --- CỘT GIỮA (ẢNH BLOB LƯỢN SÓNG) --- */
+.hp-benefits-col-center {
+  flex: 1.2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  position: relative;
+}
+
+.hp-blob-image {
+  width: 100%;
+  max-width: 480px;
+  height: 520px;
+  background-color: #e3efff; /* Nền lót tạo hiệu ứng bóng */
+  /* Tạo hình dáng cắt lượn sóng bất quy tắc giống hệt ảnh */
+  border-radius: 40% 60% 70% 30% / 40% 50% 30% 50%; 
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.hp-blob-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- ICON TRANG TRÍ BAY LƠ LỬNG --- */
+.hp-floating-icon {
+  position: absolute;
+  opacity: 0.5;
+  z-index: 0;
+}
+.icon-bulb { top: 12%; left: 32%; color: #ff9800; font-size: 30px; }
+.icon-star { top: 18%; right: 42%; color: #ffd700; font-size: 20px; }
+.icon-gear { bottom: 25%; left: 28%; color: #00bfa5; font-size: 40px; }
+.icon-pc { bottom: 15%; right: 25%; color: #9c27b0; font-size: 35px; }
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 1024px) {
+  .hp-benefits-layout {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .hp-benefits-col-left, .hp-benefits-col-right {
+    margin: 0;
+    align-items: center;
+  }
+  .hp-benefit-card {
+    max-width: 500px;
+  }
+  .hp-blob-image {
+    height: 400px;
+  }
+}
+/* =========================================
+   4. CÁC TÍNH NĂNG NỔI TRỘI (ẢNH TRÁI, LƯỚI PHẢI)
+========================================= */
+.hp-features-section {
+  background-color: #2b56a4;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.hp-features-left {
+  flex: 4;
+  background-image: url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  min-height: 500px;
+}
+
+.hp-features-right {
+  flex: 6;
+  padding: 60px 50px;
+}
+
+.hp-features-right h2 {
+  color: white;
+  margin-top: 0;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.hp-features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.hp-feature-item {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  min-height: 150px;
+}
+
+.hp-feature-item h4 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.hp-feature-item p {
+  margin: 0;
+  font-size: 15px;
+  color: #555;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* Màu sắc cho chữ tiêu đề tính năng */
+.feat-color-1 h4 { color: #009688; }
+.feat-color-2 h4 { color: #3f51b5; }
+.feat-color-3 h4 { color: #ff9800; }
+.feat-color-4 h4 { color: #e91e63; }
+.feat-color-5 h4 { color: #9c27b0; }
+.feat-color-6 h4 { color: #00bcd4; }
+
+/* =========================================
+   5. NHỮNG CON SỐ BIẾT NÓI (ZIGZAG)
+========================================= */
+.hp-stats-section {
+  padding: 80px 0;
+  background-color: #3b5998;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Đường cong cam nền */
+.hp-stats-wave {
+  position: absolute;
+  top: 50%;
+  left: -5%;
+  width: 110%;
+  height: 150px;
+  border-top: 3px solid #ff7043;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.hp-stats-section h2 {
+  text-align: center;
+  color: white;
+  margin-bottom: 60px;
+  position: relative;
+  z-index: 2;
+}
+
+.hp-stats-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  position: relative;
+  z-index: 2;
+  height: 300px; /* Chiều cao để làm zigzag */
+}
+
+.hp-stat-card {
+  background: white;
+  width: 160px;
+  height: 180px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.hp-stat-card strong {
+  font-size: 24px;
+  margin: 10px 0 5px 0;
+}
+
+.hp-stat-card span {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Tạo độ lệch lượn sóng */
+.stat-1 { align-self: flex-start; color: #ff7043; }
+.stat-2 { align-self: flex-end; color: #26a69a; }
+.stat-3 { align-self: center; color: #5c6bc0; }
+.stat-4 { align-self: flex-end; color: #ab47bc; }
+
+/* =========================================
+   6. FOOTER 
+========================================= */
+.hp-footer-wrapper {
+  background-color: #3b5998; /* Màu nền trùng với section Thống kê ở trên để nối liền mạch */
+  position: relative;
+}
+
+.hp-footer-wave {
+  width: 100%;
+  line-height: 0;
+  margin-bottom: -1px; /* Xóa khoảng trống nhỏ giữa wave và footer */
+}
+
+.hp-footer-wave svg {
+  display: block;
+  width: 100%;
+  height: 60px;
+}
+
+.hp-footer-main {
+  background-color: #1a2b4c; /* Nền xanh đậm giống ảnh */
+  color: #cbd5e1; /* Màu chữ xám sáng */
+  font-size: 14px;
+}
+
+.hp-footer-content {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 5% 60px;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.hp-footer-col {
+  flex: 1;
+  min-width: 260px;
+}
+
+.hp-footer-col h3 {
+  font-size: 18px;
+  color: white;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+/* Cột liên hệ */
+.hp-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.hp-contact-item svg {
+  min-width: 16px;
+}
+
+/* Cột menu Links */
+.hp-footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hp-footer-links a {
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.hp-footer-links a:hover {
+  color: white;
+}
+
+/* Nút Tải ứng dụng */
+.hp-app-title {
+  font-size: 15px;
+  margin-bottom: 15px;
+}
+
+.hp-app-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.hp-app-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #314a7e; /* Màu nền nút */
+  border: 1px solid #4a6397;
+  border-radius: 6px;
+  padding: 8px 15px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.hp-app-btn:hover {
+  background-color: #4a6397;
+}
+
+.hp-app-btn-text {
+  text-align: left;
+}
+
+.hp-app-btn-text span {
+  display: block;
+  font-size: 10px;
+  color: #cbd5e1;
+}
+
+.hp-app-btn-text strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ad{
+  margin-left: 60px;
+}
+.ad2{
+  margin-top: 50px;
+  margin-left: 200px;
+}
+
+/* --- GIAO DIỆN HERO BANNER MỚI --- */
+/* Tắt margin mặc định của trang nếu có */
+.home-container {
+  overflow-x: hidden;
+}
+
+/* --------- HERO SLIDER --------- */
+.new-hero-section {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 500px;
+  background-color: #0f172a; /* Đặt màu nền tĩnh dự phòng */
+  padding: 60px 5%;
+  color: white; /* Ép toàn bộ chữ bên trong mặc định là màu trắng */
+}
+
+/* Đây là lớp chứa ảnh nền */
+.hero-background-blur {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-size: cover;
+  background-position: center;
+  /* Lớp phủ (Overlay) làm tối ảnh đi một chút để chữ nổi lên */
+  
+  z-index: 0;
+  transition: background-image 0.8s ease-in-out;
+}
+
+/* Đảm bảo nội dung nổi lên trên nền */
+.hero-content, .hero-illustration {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-content {
+  flex: 1;
+  max-width: 600px;
+}
+
+.hero-title {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  color: #ffffff; /* Chữ trắng */
+}
+
+.hero-title span {
+  color: #60a5fa; /* Chữ màu xanh dương nhạt cho nổi bật */
+}
+
+.hero-desc {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  color: #e2e8f0; /* Chữ xám trắng dễ đọc */
+}
+
+/* Các nút bấm */
+.hero-actions {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.hero-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hero-btn.primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.hero-btn.primary:hover {
+  background-color: #2563eb;
+}
+
+.hero-btn.outline {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.hero-btn.outline:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Cụm Trust Badge */
+.hero-trust {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  color: #cbd5e1; /* Màu xám trắng */
+}
+
+/* Cột Ảnh minh họa bên phải */
+.hero-illustration {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hero-illustration img {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5)); /* Thêm bóng đổ cho ảnh nổi bật */
+}
+
+/* Hiệu ứng mờ dần khi đổi slide */
+.fade-in-slide {
+  animation: fadeInSlide 0.5s ease-in-out;
+}
+
+@keyframes fadeInSlide {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Nút chấm tròn (Dots) chuyển slide */
+.hero-slider-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.hero-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.hero-dot.active {
+  background-color: #3b82f6;
+  width: 24px;
+  border-radius: 5px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .new-hero-section {
+    flex-direction: column;
+    text-align: center;
+    padding-top: 40px;
+  }
+  .hero-content {
+    max-width: 100%;
+    margin-bottom: 40px;
+  }
+  .hero-actions {
+    justify-content: center;
+  }
+  .hero-trust {
+    justify-content: center;
+  }
+  .hero-illustration {
+    justify-content: center;
+  }
+}
+.hero-illustration img {
+  width: 100%;
+  max-width: 650px;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.1));
+}
+
+/* Responsive Điện thoại */
+@media (max-width: 1024px) {
+  .new-hero-section {
+    flex-direction: column;
+    background-image: none;
+    background-color: #fdfbf7;
+    padding: 40px 5%;
+  }
+  .hero-content, .hero-illustration { flex: 1; max-width: 100%; text-align: center; }
+  .hero-actions, .hero-trust { justify-content: center; }
+}
+
