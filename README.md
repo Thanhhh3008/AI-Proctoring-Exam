@@ -145,5 +145,14 @@ npm run dev
 Ứng dụng Frontend sẽ chạy tại: `http://localhost:5173`
 API Backend sẽ chạy tại: `http://localhost:3000`
 
+### 4. Triển khai bằng Docker (Tùy chọn)
+Hệ thống đã được cấu hình sẵn Docker để đóng gói toàn bộ dịch vụ.
+```bash
+# Khởi chạy toàn bộ hệ thống (DB, Backend, Frontend)
+docker-compose up --build
+```
+*(Lưu ý: Đảm bảo bạn đã cài đặt Docker Desktop trước khi chạy lệnh này)*
+
+
 ---
-*Dự án Khóa luận Tốt nghiệp - Hệ thống Quản lý Học tập và Thi cử AI - 2026*
+

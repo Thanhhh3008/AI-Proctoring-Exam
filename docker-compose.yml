@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Database PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: eduexam_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: eduexam
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Backend NestJS
+  backend:
+    build: ./backend
+    container_name: eduexam_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/eduexam?schema=public"
+      JWT_SECRET: "your_super_secret_key"
+    depends_on:
+      - db
+
+  # Frontend React
+  frontend:
+    build: ./frontend
+    container_name: eduexam_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
