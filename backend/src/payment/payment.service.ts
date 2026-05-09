@@ -81,24 +81,25 @@ export class PaymentService {
     let shouldSendEmail = false;
     let paymentDataForEmail: any = null;
 
-    // 1. Cập nhật Database nhanh chóng
+    // 1. Cập nhật Database nhanh chóng và an toàn (chống Race Condition)
     await this.prisma.$transaction(async (prisma) => {
-      // Tìm và KHÓA bản ghi (nếu dùng raw query) hoặc kiểm tra kỹ trạng thái
+      // Sử dụng updateMany với điều kiện status = 'PENDING' để đảm bảo chỉ có 1 luồng update thành công
+      const updateResult = await prisma.payment.updateMany({ 
+        where: { id: paymentId, status: 'PENDING' }, 
+        data: { status: 'SUCCESS' } 
+      });
+
+      // Nếu count === 0 nghĩa là luồng khác (Webhook hoặc Frontend) đã xử lý trước đó rồi
+      if (updateResult.count === 0) {
+        return; 
+      }
+
       const currentPayment = await prisma.payment.findUnique({
         where: { id: paymentId },
         include: { student: true, class: { include: { subject: true } } }
       });
 
-      // QUAN TRỌNG: Nếu trạng thái đã là SUCCESS rồi thì dừng ngay, không làm gì thêm
-      if (!currentPayment || currentPayment.status !== 'PENDING') {
-        return; 
-      }
-
-      // Cập nhật trạng thái và thực hiện ghi danh lớp học
-      await prisma.payment.update({ 
-        where: { id: paymentId }, 
-        data: { status: 'SUCCESS' } 
-      });
+      if (!currentPayment) return;
 
       const exists = await prisma.classStudent.findUnique({
         where: { classId_studentId: { classId: currentPayment.classId, studentId: currentPayment.studentId } }
@@ -110,9 +111,10 @@ export class PaymentService {
         });
       }
 
-      // Chỉ đánh dấu gửi email khi ĐÂY LÀ LẦN ĐẦU TIÊN trạng thái chuyển sang SUCCESS
+      // Đánh dấu là cần gửi email và lưu lại data để gửi
       shouldSendEmail = true;
       paymentDataForEmail = currentPayment;
+      
     }); 
 
     // 2. Gửi Email CHẬM (Nằm ngoài Transaction để không gây lỗi Timeout)
