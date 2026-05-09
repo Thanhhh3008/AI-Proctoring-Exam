@@ -1,93 +1,149 @@
-# 🎓 AI Proctoring Exam System
+# 🎓 EduExam LMS - Nền tảng Học tập & Thi cử Thông minh tích hợp AI
 
-Hệ thống quản lý và giám sát thi trực tuyến ứng dụng trí tuệ nhân tạo (AI) để phát hiện gian lận và xác thực danh tính thí sinh.
+EduExam là một Hệ thống Quản lý Học tập (LMS) toàn diện, không chỉ cung cấp nền tảng để giảng dạy, kinh doanh khóa học và làm bài tập, mà còn được trang bị hệ thống Giám sát thi cử ứng dụng Trí tuệ Nhân tạo (AI Proctoring) tiên tiến nhằm đảm bảo tính công bằng và minh bạch trong giáo dục trực tuyến.
 
-## 🌟 Tính năng chính
+---
 
-### 👨‍💼 Quản trị viên (Admin)
-- **Dashboard thông minh:** Thống kê tổng quan về người dùng, môn học và tình hình vi phạm toàn hệ thống.
-- **Giám sát thời gian thực (Real-time Proctoring):** Theo dõi bảng tin vi phạm trực tiếp (Live Feed) với ảnh bằng chứng từ webcam của thí sinh.
-- **Quản lý học thuật:** Quản lý danh sách môn học, người dùng (Giảng viên/Sinh viên).
-- **Cấu hình hệ thống:** Tùy chỉnh độ nhạy của AI, quy định mật khẩu và các thông số giám sát.
+## 🌟 Các tính năng nổi bật (Key Features)
 
-### 👨‍🏫 Giảng viên (Teacher)
-- **Quản lý kỳ thi:** Tạo đề thi, thiết lập thời gian, quy định giám sát (Bật/tắt Camera, Chặn chuyển tab).
-- **Ngân hàng câu hỏi:** Quản lý câu hỏi theo môn học và mức độ khó.
-- **Chấm điểm:** Tự động chấm điểm trắc nghiệm và hỗ trợ chấm điểm tự luận.
+### 📚 1. E-Learning & Kinh doanh Khóa học (Course Marketplace)
+- **Kinh doanh Khóa học:** Giảng viên có thể tạo và định giá các lớp học/khóa học. Hệ thống tích hợp thanh toán (MOMO) để sinh viên mua khóa học.
+- **Quản lý Học liệu:** Tổ chức bài giảng theo từng chương (Sections) với đa dạng học liệu: File tài liệu (PDF, Word), Video, Đường dẫn (URL).
+- **Hệ thống Đánh giá:** Sinh viên có thể để lại Đánh giá (Review) và Rating cho khóa học.
 
-### 👨‍🎓 Sinh viên (Student)
-- **Vào phòng thi:** Xác thực khuôn mặt trước khi vào thi.
-- **Làm bài thi:** Giao diện thi chuyên nghiệp, tích hợp giám sát AI (Phát hiện chuyển tab, rời màn hình, nhiều người trong khung hình).
-- **Xem kết quả:** Xem lại bài thi và các lỗi vi phạm đã mắc phải.
+### 📝 2. Quản lý Bài tập & Đánh giá (Assignments)
+- **Giao bài tập:** Giảng viên tạo các bài tập về nhà (Assignment) kèm thời hạn nộp bài (Deadline).
+- **Nộp & Chấm bài:** Sinh viên nộp bài dưới dạng File đính kèm. Giảng viên có thể tải về, chấm điểm và để lại nhận xét (Feedback) trực tiếp trên hệ thống.
 
-## 🏗️ Kiến trúc hệ thống (System Architecture)
+### 🤖 3. Thi trực tuyến & Giám sát AI (AI-Proctored Exams)
+- **Ngân hàng câu hỏi:** Quản lý câu hỏi theo môn học, hỗ trợ Trắc nghiệm (Multiple Choice) và Tự luận (Essay). Hỗ trợ sinh đề thi ngẫu nhiên dựa trên luật (Generation Rules).
+- **Nhận diện khuôn mặt (Face Verification):** Xác thực danh tính sinh viên trước khi vào phòng thi bằng AI.
+- **Giám sát hành vi (Proctoring):** 
+  - AI phân tích hình ảnh từ Webcam liên tục để phát hiện: Gian lận khuôn mặt (Nhiều người, Sai người, Không thấy mặt), Hành vi đáng ngờ (Nhìn chỗ khác, Dùng điện thoại).
+  - Bắt các thao tác trình duyệt: Rời màn hình, Chuyển Tab, Thoát toàn màn hình, Thao tác Copy/Paste.
+- **Chấm điểm tự động:** Hệ thống tự động chấm điểm các câu hỏi trắc nghiệm ngay khi nộp bài.
+
+### 👨‍💼 4. Bảng điều khiển Quản trị (Admin & Teacher Dashboards)
+- **Live Feed Giám sát:** Admin có thể xem trực tiếp danh sách vi phạm thời gian thực từ tất cả các phòng thi đang diễn ra.
+- **Quản lý Tổng thể:** Quản lý danh sách Người dùng (Phân quyền Role-based), Môn học, và Các kỳ thi.
+- **Cài đặt Hệ thống:** Quản lý độ nhạy của AI, cấu hình bảo mật, quy định mật khẩu một cách linh hoạt.
+
+---
+
+## 🏗️ Kiến trúc Hệ thống (System Architecture)
+
+Hệ thống được thiết kế theo kiến trúc Client-Server hiện đại, chia tách rõ ràng các service và xử lý Realtime mạnh mẽ.
 
 ```mermaid
 graph TD
-    subgraph Client_Side [Frontend - ReactJS]
-        UI[Ant Design UI]
-        AI_Local[Face-api.js / TensorFlow]
-        WS_Client[Socket.io-client]
+    subgraph Client_Side ["Frontend (ReactJS / Vite)"]
+        UI["UI Components<br/>(Ant Design, Recharts)"]
+        LMS_UI["E-Learning UI<br/>(Courses, Assignments)"]
+        Exam_UI["Exam Workspace"]
+        
+        subgraph AI_Engine ["AI Proctoring Engine"]
+            FaceAPI["Face-api.js / TF.js<br/>(Face Detecion & Recognition)"]
+            Behavior["Browser Behavior Monitor<br/>(Tab, Screen, Copy/Paste)"]
+        end
+        
+        SocketClient["Socket.io Client"]
+        RESTClient["Axios HTTP Client"]
+        
+        UI --- LMS_UI
+        UI --- Exam_UI
+        Exam_UI --- AI_Engine
     end
 
-    subgraph Server_Side [Backend - NestJS]
-        API[REST API - Controllers]
-        WS_Server[WebSocket Gateway]
-        Auth[JWT Authentication]
-        logic[Business Logic - Services]
+    subgraph Server_Side ["Backend (NestJS)"]
+        Controllers["REST API Controllers"]
+        Gateway["WebSocket Gateway<br/>(Proctoring Realtime)"]
+        
+        subgraph Services ["Business Logic"]
+            AuthSvc["Auth & Security<br/>(JWT, Bcrypt)"]
+            CourseSvc["Course & Payment<br/>(Momo Integration)"]
+            ExamSvc["Exam & Grading Logic"]
+            ProctorSvc["Proctoring & Audit Logic"]
+        end
+        
+        Controllers --- Services
+        Gateway --- ProctorSvc
     end
 
-    subgraph Database_Layer [Storage]
-        DB[(PostgreSQL - Prisma ORM)]
-        Files[Local File System - Images/Uploads]
+    subgraph Data_Storage ["Data & Storage Layer"]
+        DB[("PostgreSQL<br/>(Prisma ORM)")]
+        LocalFS["Local File System<br/>(Uploads, Avatars, Evidence Images)"]
     end
 
-    UI <--> API
-    AI_Local -- Gửi vi phạm --> WS_Client
-    WS_Client <--> WS_Server
-    API <--> logic
-    logic <--> DB
-    logic <--> Files
-    WS_Server -- Cảnh báo Realtime --> UI
+    %% Connections
+    RESTClient -- "HTTP/REST (JSON)" --> Controllers
+    SocketClient <== "WebSocket (Realtime Events)" ==> Gateway
+    
+    Services -- "Read/Write" --> DB
+    Services -- "Store/Retrieve" --> LocalFS
+    
+    %% Specific flows
+    FaceAPI -. "Send Violation Image" .-> SocketClient
+    CourseSvc -. "Process Payment" .-> ExtPayment[("External Payment Gateway")]
 ```
+
+---
 
 ## 🛠️ Công nghệ sử dụng (Tech Stack)
 
-| Thành phần | Công nghệ |
-|---|---|
-| **Frontend** | React (Vite), Ant Design, Recharts, Socket.io-client, Axios |
-| **Backend** | NestJS, Socket.io (WebSocket), Passport JWT, Multer |
-| **Database** | PostgreSQL, Prisma ORM |
-| **AI Library** | Face-api.js (Phát hiện khuôn mặt, xác thực danh tính trực tiếp trên trình duyệt) |
-| **Dev Tools** | TypeScript, ESLint, Prettier |
+| Lớp (Layer) | Công nghệ chính | Chức năng |
+|---|---|---|
+| **Frontend** | ReactJS 19 (Vite), TypeScript | Framework xây dựng giao diện chính |
+| | Ant Design (v6) | UI Component Library chuyên nghiệp |
+| | Face-api.js | Thư viện AI nhận diện và xử lý khuôn mặt tại Client-side |
+| | Socket.io-client | Giao tiếp thời gian thực |
+| | Recharts | Vẽ biểu đồ thống kê cho Dashboard |
+| **Backend** | NestJS, TypeScript | Framework backend kiến trúc module hóa |
+| | Prisma ORM | Tương tác cơ sở dữ liệu an toàn và linh hoạt |
+| | Socket.io | Quản lý kết nối WebSocket, phát luồng (broadcast) cảnh báo |
+| | Passport, JWT, Bcrypt | Mã hóa mật khẩu và xác thực người dùng |
+| **Database** | PostgreSQL | Cơ sở dữ liệu quan hệ mạnh mẽ lưu trữ toàn bộ dữ liệu |
+| **Lưu trữ** | File System (DiskStorage) | Lưu trữ Avatar, Học liệu, và Hình ảnh vi phạm |
 
-## 🚀 Hướng dẫn cài đặt
+---
 
-### 1. Yêu cầu hệ thống
-- Node.js (v18+)
-- PostgreSQL
+## 🚀 Hướng dẫn Cài đặt & Khởi chạy (Getting Started)
 
-### 2. Cài đặt Backend
+### 1. Yêu cầu Hệ thống (Prerequisites)
+- [Node.js](https://nodejs.org/) (Phiên bản 18.x trở lên)
+- [PostgreSQL](https://www.postgresql.org/) (Phiên bản 14.x trở lên)
+- Git
+
+### 2. Cấu hình Backend
 ```bash
+# Di chuyển vào thư mục backend
 cd backend
+
+# Cài đặt các gói phụ thuộc
 npm install
-# Tạo file .env và cấu hình DATABASE_URL, JWT_SECRET
+
+# Khởi tạo cơ sở dữ liệu bằng Prisma
 npx prisma generate
+npx prisma db push
+
+# Chạy server ở chế độ Development
 npm run start:dev
 ```
+*(Lưu ý: Bạn cần tạo file `.env` ở thư mục `backend` chứa `DATABASE_URL` và `JWT_SECRET`)*
 
-### 3. Cài đặt Frontend
+### 3. Cấu hình Frontend
 ```bash
+# Mở một Terminal mới, di chuyển vào thư mục frontend
 cd frontend
+
+# Cài đặt các gói phụ thuộc
 npm install
+
+# Khởi chạy ứng dụng
 npm run dev
 ```
 
-## 🔒 Bảo mật & Giám sát
-Hệ thống tích hợp các cơ chế bảo mật:
-- Xác thực JWT cho mọi yêu cầu API.
-- Phân quyền (RBAC) Admin - Teacher - Student.
-- Giám sát AI phát hiện: Chuyển Tab, Thoát toàn màn hình, Nhiều người, Sai người thi.
+Ứng dụng Frontend sẽ chạy tại: `http://localhost:5173`
+API Backend sẽ chạy tại: `http://localhost:3000`
 
 ---
-© 2026 EduExam LMS - Toàn quyền bảo lưu.
+*Dự án Khóa luận Tốt nghiệp - Hệ thống Quản lý Học tập và Thi cử AI - 2026*
