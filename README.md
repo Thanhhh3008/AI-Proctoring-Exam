@@ -87,23 +87,36 @@ graph TD
 ```
 
 ---
+## 🛠 Công nghệ sử dụng (Tech Stack)
 
-## 🛠️ Công nghệ sử dụng (Tech Stack)
-
-| Lớp (Layer) | Công nghệ chính | Chức năng |
-|---|---|---|
-| **Frontend** | ReactJS 19 (Vite), TypeScript | Framework xây dựng giao diện chính |
-| | Ant Design (v6) | UI Component Library chuyên nghiệp |
-| | Face-api.js | Thư viện AI nhận diện và xử lý khuôn mặt tại Client-side |
-| | Socket.io-client | Giao tiếp thời gian thực |
-| | Recharts | Vẽ biểu đồ thống kê cho Dashboard |
-| **Backend** | NestJS, TypeScript | Framework backend kiến trúc module hóa |
-| | Prisma ORM | Tương tác cơ sở dữ liệu an toàn và linh hoạt |
+### 1. Phân hệ Ứng dụng & Nền tảng (Application Layer)
+| Thành phần | Công nghệ chính | Chức năng |
+| :--- | :--- | :--- |
+| **Frontend** | ReactJS 19 (Vite), TypeScript | Framework xây dựng giao diện người dùng (UI) |
+| | Ant Design (v6) | UI Component Library chuyên nghiệp, responsive |
+| | Socket.io-client | Giao tiếp thời gian thực (Real-time communication) |
+| | Recharts | Trực quan hóa dữ liệu, vẽ biểu đồ thống kê cho Dashboard |
+| **Backend** | NestJS, TypeScript | Framework backend kiến trúc module hóa vững chắc |
+| | Prisma ORM | Tương tác cơ sở dữ liệu an toàn, linh hoạt, type-safe |
 | | Socket.io | Quản lý kết nối WebSocket, phát luồng (broadcast) cảnh báo |
-| | Passport, JWT, Bcrypt | Mã hóa mật khẩu và xác thực người dùng |
-| **Database** | PostgreSQL | Cơ sở dữ liệu quan hệ mạnh mẽ lưu trữ toàn bộ dữ liệu |
-| **Lưu trữ** | File System (DiskStorage) | Lưu trữ Avatar, Học liệu, và Hình ảnh vi phạm |
+| | Passport, JWT, Bcrypt | Mã hóa mật khẩu, xác thực (Authentication) và phân quyền (Authorization) |
 
+### 2. Phân hệ Giám sát thông minh (AI Proctoring Layer - Client-side)
+*Tất cả mô hình AI được tối ưu hóa để chạy trực tiếp trên trình duyệt (Browser), giảm thiểu độ trễ và tiết kiệm tài nguyên Server.*
+
+| Công nghệ | Kỹ thuật / Mô hình | Nhiệm vụ giám sát (Proctoring Tasks) |
+| :--- | :--- | :--- |
+| **Face-api.js** | Face Embedding | Trích xuất vector đặc trưng, **nhận diện danh tính (Identity Verification)**, đối soát với ảnh gốc đã đăng ký để chống thi hộ. |
+| **MediaPipe** | Face Detection | Định vị khuôn mặt, phát hiện **nhiều người cùng lúc (Multiple Face Detection)** hoặc **vắng mặt (Absence Detection)**. |
+| **MediaPipe** | FaceMesh (468 Landmarks) | Theo dõi **cử động đầu (Head Pose Estimation)** (góc Yaw, Pitch) để phát hiện hành vi quay ngang/dọc, không nhìn vào màn hình. |
+| **YOLOv8** | Object Detection | Quét và phát hiện các **thiết bị gian lận (Phone/Tablet Detection)** xuất hiện trong khung hình. |
+| **OpenCV.js** | Optical Flow | Phân tích biến thiên chuyển động giữa các khung hình, **chống giả mạo (Anti-Spoofing)** bằng ảnh tĩnh hoặc video giả. |
+
+### 3. Phân hệ Dữ liệu & Lưu trữ (Data & Storage Layer)
+| Thành phần | Công nghệ chính | Chức năng |
+| :--- | :--- | :--- |
+| **Database** | PostgreSQL | Cơ sở dữ liệu quan hệ mạnh mẽ, lưu trữ toàn bộ dữ liệu hệ thống (User, Course, Exam, Logs...). |
+| **Lưu trữ** | File System (DiskStorage) | Lưu trữ file vật lý: Avatar người dùng, Học liệu đính kèm, và hình ảnh bằng chứng vi phạm lúc thi. |
 ---
 
 ## 🚀 Hướng dẫn Cài đặt & Khởi chạy (Getting Started)
