@@ -51,6 +51,15 @@ export class ExamsController {
     return this.examsService.gradeEssayAnswer(answerId, body.score, body.feedback);
   }
 
+  // Điều chỉnh tổng điểm và thêm nhận xét cho phiên thi
+  @Patch('sessions/:sessionId/adjust-grade')
+  adjustSessionGrade(
+    @Param('sessionId') sessionId: string,
+    @Body() body: { score: number; comment: string }
+  ) {
+    return this.examsService.adjustSessionGrade(sessionId, body.score, body.comment);
+  }
+
   // =======================================================
   // 3. DÀNH CHO SINH VIÊN (LÀM BÀI THI)
   // =======================================================

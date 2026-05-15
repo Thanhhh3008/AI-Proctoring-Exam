@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 import { 
   FaBookOpen, FaUsers, FaChartBar, FaChevronDown, 
@@ -148,9 +148,18 @@ const [accessDenied, setAccessDenied] = useState(false);
     }
   };
 
+  const location = useLocation();
+
   useEffect(() => {
     fetchCourseData();
-  }, [classId, navigate]);
+    
+    // Xử lý chuyển tab qua URL param ?tab=...
+    const queryParams = new URLSearchParams(location.search);
+    const tabParam = queryParams.get('tab');
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [classId, navigate, location.search]);
 
   useEffect(() => {
     if (activeTab === 'thanhvien' && members.length === 0) fetchMembers();

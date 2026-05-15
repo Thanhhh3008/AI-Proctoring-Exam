@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 import { FaUserGraduate, FaChalkboardTeacher, FaSchool, FaEye, FaEyeSlash, FaCheckCircle, FaExclamationTriangle, FaTimes } from 'react-icons/fa';
-import '../Login/LoginPage.css'; 
+import '../Login/LoginPage.css';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ export default function RegisterPage() {
     fullName: '', email: '', password: '', confirmPassword: '', role: 'STUDENT'
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // --- HỆ THỐNG TOAST NOTIFICATION ---
@@ -22,7 +22,7 @@ export default function RegisterPage() {
     setToast({ message, type });
     toastTimeoutRef.current = setTimeout(() => {
       setToast({ message: '', type: null });
-    }, 4000); 
+    }, 4000);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,11 +31,11 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // 1. KIỂM TRA MẬT KHẨU NHẬP LẠI
     if (formData.password !== formData.confirmPassword) {
       showToast('Mật khẩu nhập lại không khớp!', 'error');
-      return; 
+      return;
     }
 
     setLoading(true);
@@ -43,14 +43,14 @@ export default function RegisterPage() {
     try {
       const { confirmPassword, ...submitData } = formData;
       const res = await axiosClient.post('/auth/register', submitData);
-      
+
       showToast('Đăng ký thành công! Vui lòng kiểm tra Email để kích hoạt.', 'success');
-      
+
       // Chuyển về trang login sau 4 giây
       setTimeout(() => {
         navigate('/login');
       }, 4000);
-      
+
     } catch (error: any) {
       showToast(error.response?.data?.message || 'Có lỗi xảy ra khi đăng ký!', 'error');
     } finally {
@@ -60,7 +60,7 @@ export default function RegisterPage() {
 
   return (
     <div className="login-split-container">
-      
+
       {/* --- TOAST NOTIFICATION UI --- */}
       {toast.type && (
         <div style={{
@@ -84,9 +84,9 @@ export default function RegisterPage() {
           <div className="login-badge">
             <div className="login-badge-dot"></div> Năm học 2025-2026
           </div>
-          
-          <h1 className="login-left-title">Hệ thống<br />Quản lý<br />Trường Đại học</h1>
-          
+
+          <h1 className="login-left-title">Nền tảng chia sẻ Khóa học<br />& Thi trực tuyến với sự giám sát của AI</h1>
+
           <p className="login-left-desc">
             Nâng tầm Giáo dục — Nền tảng thống nhất cho sinh viên, giảng viên và bộ phận quản lý được tích hợp công nghệ AI.
           </p>
@@ -103,7 +103,7 @@ export default function RegisterPage() {
       {/* 2. NỬA BÊN PHẢI - FORM ĐĂNG KÝ */}
       <div className="login-right-panel">
         <div className="login-form-card" style={{ maxWidth: '450px' }}>
-          
+
           <div className="login-card-header">
             <div className="login-icon-box"><FaSchool size={24} /></div>
             <h2>Tạo tài khoản mới</h2>
@@ -111,18 +111,18 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleRegister}>
-            
+
             {/* Chọn vai trò (Role) */}
             <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
               <label style={{ flex: 1, padding: '12px', border: formData.role === 'STUDENT' ? '2px solid #2563eb' : '1px solid #cbd5e1', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: formData.role === 'STUDENT' ? '#eff6ff' : 'white', transition: 'all 0.2s' }}>
                 <input type="radio" name="role" value="STUDENT" checked={formData.role === 'STUDENT'} onChange={handleChange} style={{ display: 'none' }} />
-                <FaUserGraduate color={formData.role === 'STUDENT' ? '#2563eb' : '#64748b'} /> 
+                <FaUserGraduate color={formData.role === 'STUDENT' ? '#2563eb' : '#64748b'} />
                 <span style={{ fontWeight: formData.role === 'STUDENT' ? '600' : '500', color: formData.role === 'STUDENT' ? '#1e40af' : '#475569', fontSize: '14px' }}>Sinh viên</span>
               </label>
 
               <label style={{ flex: 1, padding: '12px', border: formData.role === 'TEACHER' ? '2px solid #ec4899' : '1px solid #cbd5e1', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: formData.role === 'TEACHER' ? '#fdf2f8' : 'white', transition: 'all 0.2s' }}>
                 <input type="radio" name="role" value="TEACHER" checked={formData.role === 'TEACHER'} onChange={handleChange} style={{ display: 'none' }} />
-                <FaChalkboardTeacher color={formData.role === 'TEACHER' ? '#ec4899' : '#64748b'} /> 
+                <FaChalkboardTeacher color={formData.role === 'TEACHER' ? '#ec4899' : '#64748b'} />
                 <span style={{ fontWeight: formData.role === 'TEACHER' ? '600' : '500', color: formData.role === 'TEACHER' ? '#9d174d' : '#475569', fontSize: '14px' }}>Giảng viên</span>
               </label>
             </div>
@@ -133,7 +133,7 @@ export default function RegisterPage() {
                 <input type="text" name="fullName" placeholder="Ví dụ: Nguyễn Văn A" required value={formData.fullName} onChange={handleChange} />
               </div>
             </div>
-            
+
             <div className="login-input-group">
               <label>Địa chỉ Email</label>
               <div className="login-input-wrapper">
@@ -144,9 +144,9 @@ export default function RegisterPage() {
             <div className="login-input-group">
               <label>Mật khẩu</label>
               <div className="login-input-wrapper">
-                <input 
-                  type={showPassword ? "text" : "password"} name="password" 
-                  placeholder="Từ 8-16 kí tự gồm số và chữ cái" required value={formData.password} onChange={handleChange} 
+                <input
+                  type={showPassword ? "text" : "password"} name="password"
+                  placeholder="Từ 8-16 kí tự gồm số và chữ cái" required value={formData.password} onChange={handleChange}
                 />
                 <button type="button" className="password-toggle-btn" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
@@ -157,9 +157,9 @@ export default function RegisterPage() {
             <div className="login-input-group">
               <label>Nhập lại mật khẩu</label>
               <div className="login-input-wrapper">
-                <input 
-                  type={showConfirmPassword ? "text" : "password"} name="confirmPassword" 
-                  placeholder="Nhập lại mật khẩu" required value={formData.confirmPassword} onChange={handleChange} 
+                <input
+                  type={showConfirmPassword ? "text" : "password"} name="confirmPassword"
+                  placeholder="Nhập lại mật khẩu" required value={formData.confirmPassword} onChange={handleChange}
                 />
                 <button type="button" className="password-toggle-btn" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                   {showConfirmPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}

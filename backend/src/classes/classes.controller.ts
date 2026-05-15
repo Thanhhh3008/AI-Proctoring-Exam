@@ -1,6 +1,9 @@
 import { Controller, Get, Post, Put, Delete, Patch, Req,UseGuards, Request, Param,NotFoundException,ForbiddenException, Query, UseInterceptors, UploadedFile, Body, BadRequestException } from '@nestjs/common';
 import { ClassesService } from './classes.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard'; 
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -217,5 +220,19 @@ export class ClassesController {
     return this.classesService.getPendingSubmissions(classId);
   }
 
-  
+  // --- ADMIN ROUTES ---
+
+  @Get('admin/all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async getAllClassesAdmin() {
+    return this.classesService.getAllClassesForAdmin();
+  }
+
+  @Delete('admin/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async deleteClassAdmin(@Param('id') id: string) {
+    return this.classesService.deleteClass(id);
+  }
 }

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
-import { FaArrowLeft, FaSpinner, FaTimes, FaSearch, FaFileExcel } from 'react-icons/fa';
+import { io, Socket } from 'socket.io-client';
+import { FaArrowLeft, FaSpinner, FaTimes, FaSearch, FaFileExcel, FaCircle } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import './TeacherProctoringDashboard.css';
 
@@ -33,6 +34,13 @@ const VIOLATION_COLORS: Record<string, string> = {
 export default function TeacherProctoringDashboard() {
   const { examId } = useParams<{ examId: string }>();
   const navigate = useNavigate();
+  const BACKEND_URL = 'http://localhost:3000';
+
+  const resolveImageUrl = (url?: string) => {
+    if (!url) return undefined;
+    if (url.startsWith('http')) return url;
+    return `${BACKEND_URL}${url}`;
+  };
 
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any[]>([]);
@@ -42,7 +50,24 @@ export default function TeacherProctoringDashboard() {
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [isLive, setIsLive] = useState(false); // Trạng thái kết nối WebSocket
+  const socketRef = useRef<Socket | null>(null);
 
+  // Hàm fetch lại dữ liệu từ API
+  const refreshData = async () => {
+    try {
+      const [statsRes, summaryRes] = await Promise.all([
+        axiosClient.get(`/proctoring/exam/${examId}/stats`),
+        axiosClient.get(`/proctoring/exam/${examId}/summary`),
+      ]);
+      setStats(statsRes.data);
+      setSummary(summaryRes.data);
+    } catch (err) {
+      console.error('[ProctoringDashboard] Lỗi refresh dữ liệu:', err);
+    }
+  };
+
+  // Lấy dữ liệu ban đầu khi tải trang
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -61,6 +86,44 @@ export default function TeacherProctoringDashboard() {
       }
     };
     fetchData();
+  }, [examId]);
+
+  // Kết nối WebSocket để nhận cập nhật real-time
+  useEffect(() => {
+    if (!examId) return;
+
+    const socket = io('http://localhost:3000/proctoring', {
+      transports: ['websocket', 'polling'],
+    });
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+      setIsLive(true);
+      socket.emit('join:teacher-monitor', { examId });
+      console.log('[WS-Teacher] Đã kết nối và vào phòng giám sát:', examId);
+    });
+
+    socket.on('disconnect', () => {
+      setIsLive(false);
+      console.log('[WS-Teacher] Mất kết nối');
+    });
+
+    // Khi có vi phạm mới từ bất kỳ sinh viên nào trong kỳ thi này
+    socket.on('violation:alert', async (data: any) => {
+      console.log('[WS-Teacher] Vi phạm mới:', data);
+      // Fetch lại toàn bộ stats để cập nhật bảng
+      await refreshData();
+    });
+
+    // Khi có sinh viên mới vào phòng thi
+    socket.on('student:joined', async () => {
+      await refreshData();
+    });
+
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
   }, [examId]);
 
   if (loading) {
@@ -183,8 +246,17 @@ export default function TeacherProctoringDashboard() {
             <h1 style={{ fontSize: '28px', color: '#0f172a' }}>
               Đang giám sát: <span style={{ color: '#6366f1' }}>{examInfo?.title || 'Đang tải...'}</span>
             </h1>
-            <p style={{ fontSize: '15px', marginTop: '4px' }}>
-              Mã kỳ thi: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{examId}</code> • Trạng thái: Real-time Monitoring
+            <p style={{ fontSize: '15px', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              Mã kỳ thi: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{examId}</code>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                padding: '2px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 700,
+                background: isLive ? '#dcfce7' : '#fee2e2',
+                color: isLive ? '#15803d' : '#dc2626',
+              }}>
+                <FaCircle style={{ fontSize: 7, animation: isLive ? 'pulse 1.5s infinite' : 'none' }} />
+                {isLive ? 'LIVE — Đang nhận cập nhật tự động' : 'OFFLINE — Mất kết nối real-time'}
+              </span>
             </p>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
@@ -260,7 +332,13 @@ export default function TeacherProctoringDashboard() {
                     <tr key={s.sessionId}>
                       <td>
                         <div className="pd-user-info">
-                          <div className="pd-user-avatar">{getInitials(s.student.fullName)}</div>
+                          <div className="pd-user-avatar">
+                            {s.student.avatarUrl ? (
+                              <img src={resolveImageUrl(s.student.avatarUrl)} alt="" />
+                            ) : (
+                              getInitials(s.student.fullName)
+                            )}
+                          </div>
                           <div className="pd-user-details">
                             <span className="name">{s.student.fullName}</span>
                             <span className="email">{s.student.email}</span>
@@ -368,24 +446,65 @@ export default function TeacherProctoringDashboard() {
                     </div>
                     <div className="pd-t-content">
                       <span className="pd-t-label">{VIOLATION_LABELS[v.type] || v.type}</span>
-                      {/* EVIDENCE PHOTO */}
+                      {/* EVIDENCE PHOTO — So sánh 2 ảnh nếu là DIFFERENT_PERSON */}
                       {v.evidenceUrl && (
                         <div style={{ marginTop: 10 }}>
-                          <img
-                            src={v.evidenceUrl}
-                            alt="Bằng chứng"
-                            onClick={() => setLightboxUrl(v.evidenceUrl)}
-                            style={{
-                              width: 140, height: 80, objectFit: 'cover',
-                              borderRadius: 8, cursor: 'zoom-in',
-                              border: '2px solid #e2e8f0',
-                              transition: 'border-color 0.2s',
-                            }}
-                            onMouseOver={e => (e.currentTarget.style.borderColor = '#6366f1')}
-                            onMouseOut={e => (e.currentTarget.style.borderColor = '#e2e8f0')}
-                            title="Nhấn để xem ảnh toạn màn hình"
-                          />
-                          <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Nhấn ảnh để xem to</div>
+                          {v.type === 'DIFFERENT_PERSON' && selectedSession.referencePhoto ? (
+                            // So sánh 2 ảnh song song
+                            <div>
+                              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                                <div style={{ textAlign: 'center' }}>
+                                  <div style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', marginBottom: 4 }}>✅ Ảnh gốc (Đã đăng ký)</div>
+                                  <img
+                                    src={resolveImageUrl(selectedSession.referencePhoto)}
+                                    alt="Ảnh gốc"
+                                    onClick={() => setLightboxUrl(resolveImageUrl(selectedSession.referencePhoto)!)}
+                                    style={{
+                                      width: 130, height: 90, objectFit: 'cover',
+                                      borderRadius: 8, cursor: 'zoom-in',
+                                      border: '2px solid #22c55e',
+                                    }}
+                                    title="Ảnh đã đăng ký khi bắt đầu thi"
+                                  />
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', paddingTop: 36, color: '#ef4444', fontWeight: 700, fontSize: 18 }}>≠</div>
+                                <div style={{ textAlign: 'center' }}>
+                                  <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>⚠️ Ảnh phát hiện (Lúc thi) </div>
+                                  <img
+                                    src={v.evidenceUrl}
+                                    alt="Bằng chứng vi phạm"
+                                    onClick={() => setLightboxUrl(v.evidenceUrl)}
+                                    style={{
+                                      width: 130, height: 90, objectFit: 'cover',
+                                      borderRadius: 8, cursor: 'zoom-in',
+                                      border: '2px solid #ef4444',
+                                    }}
+                                    title="Nhấn để xem to"
+                                  />
+                                </div>
+                              </div>
+                              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>Nhấn ảnh để xem to</div>
+                            </div>
+                          ) : (
+                            // Ảnh đơn cho các vi phạm khác
+                            <>
+                              <img
+                                src={v.evidenceUrl}
+                                alt="Bằng chứng"
+                                onClick={() => setLightboxUrl(v.evidenceUrl)}
+                                style={{
+                                  width: 140, height: 80, objectFit: 'cover',
+                                  borderRadius: 8, cursor: 'zoom-in',
+                                  border: '2px solid #e2e8f0',
+                                  transition: 'border-color 0.2s',
+                                }}
+                                onMouseOver={e => (e.currentTarget.style.borderColor = '#6366f1')}
+                                onMouseOut={e => (e.currentTarget.style.borderColor = '#e2e8f0')}
+                                title="Nhấn để xem ảnh toàn màn hình"
+                              />
+                              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Nhấn ảnh để xem to</div>
+                            </>
+                          )}
                         </div>
                       )}
                     </div>

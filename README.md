@@ -89,6 +89,7 @@ graph TD
 ---
 ## 🛠 Công nghệ sử dụng (Tech Stack)
 
+
 ### 1. Phân hệ Ứng dụng & Nền tảng (Application Layer)
 | Thành phần | Công nghệ chính | Chức năng |
 | :--- | :--- | :--- |
@@ -158,7 +159,7 @@ npm run dev
 Ứng dụng Frontend sẽ chạy tại: `http://localhost:5173`
 API Backend sẽ chạy tại: `http://localhost:3000`
 
-### 4. Triển khai bằng Docker (Tùy chọn)
+### 4. Triển khai bằng Docker 
 Hệ thống đã được cấu hình sẵn Docker để đóng gói toàn bộ dịch vụ.
 ```bash
 # Khởi chạy toàn bộ hệ thống (DB, Backend, Frontend)

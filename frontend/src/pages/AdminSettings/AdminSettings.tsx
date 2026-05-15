@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Typography, 
-  Card, 
-  Form, 
-  Input, 
-  Button, 
-  Switch, 
-  InputNumber, 
-  Space, 
-  message, 
-  Divider, 
-  Row, 
-  Col, 
+import {
+  Typography,
+  Card,
+  Form,
+  Input,
+  Button,
+  Switch,
+  InputNumber,
+  Space,
+  message,
+  Divider,
+  Row,
+  Col,
   Tabs,
   Alert
 } from 'antd';
-import { 
-  SaveOutlined, 
-  GlobalOutlined, 
-  SafetyOutlined, 
+import {
+  SaveOutlined,
+  GlobalOutlined,
+  SafetyOutlined,
   LockOutlined,
   BellOutlined
 } from '@ant-design/icons';
@@ -72,15 +72,15 @@ const AdminSettings: React.FC = () => {
             <Input placeholder="Nhập tên hệ thống" />
           </Form.Item>
           <Form.Item name={['general', 'contactEmail']} label="Email liên hệ" rules={[{ type: 'email' }]}>
-            <Input placeholder="admin@example.com" />
+            <Input placeholder="nthanh30082004@gmail.com" />
           </Form.Item>
 
           <Divider />
           <Title level={4}><LockOutlined /> Quy định mật khẩu</Title>
-          <Alert 
-            message="Các thay đổi này sẽ áp dụng cho tất cả người dùng khi họ đổi mật khẩu hoặc đăng ký mới." 
-            type="info" 
-            showIcon 
+          <Alert
+            message="Các thay đổi này sẽ áp dụng cho tất cả người dùng khi họ đổi mật khẩu hoặc đăng ký mới."
+            type="info"
+            showIcon
             style={{ marginBottom: 20 }}
           />
           <Form.Item name={['general', 'passwordPolicy', 'minLength']} label="Độ dài tối thiểu">
@@ -101,10 +101,10 @@ const AdminSettings: React.FC = () => {
       children: (
         <Card variant="borderless">
           <Title level={4}>Cấu hình giám sát thông minh</Title>
-          <Alert 
-            message="Cấu hình này ảnh hưởng trực tiếp đến hiệu năng và độ nhạy của hệ thống giám sát trong lúc thi." 
-            type="warning" 
-            showIcon 
+          <Alert
+            message="Cấu hình này ảnh hưởng trực tiếp đến hiệu năng và độ nhạy của hệ thống giám sát trong lúc thi."
+            type="warning"
+            showIcon
             style={{ marginBottom: 20 }}
           />
           <Row gutter={24}>
@@ -139,10 +139,10 @@ const AdminSettings: React.FC = () => {
     <div className="admin-settings">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <Title level={2} style={{ margin: 0 }}>Cài đặt hệ thống</Title>
-        <Button 
-          type="primary" 
-          icon={<SaveOutlined />} 
-          size="large" 
+        <Button
+          type="primary"
+          icon={<SaveOutlined />}
+          size="large"
           onClick={() => form.submit()}
           loading={saving}
         >

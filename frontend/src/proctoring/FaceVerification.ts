@@ -55,7 +55,7 @@ export class FaceVerification {
     try {
       if (this.recognitionLoaded) {
         const detection = await faceapi
-          .detectSingleFace(imageElement, new faceapi.TinyFaceDetectorOptions())
+          .detectSingleFace(imageElement, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3, inputSize: 416 }))
           .withFaceLandmarks()
           .withFaceDescriptor();
         
@@ -68,7 +68,7 @@ export class FaceVerification {
         return true;
       } else {
         // Fallback: chỉ detect xem có mặt không
-        const detection = await faceapi.detectSingleFace(imageElement, new faceapi.TinyFaceDetectorOptions());
+        const detection = await faceapi.detectSingleFace(imageElement, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3, inputSize: 416 }));
         return !!detection;
       }
     } catch (err) {
@@ -78,7 +78,7 @@ export class FaceVerification {
   }
 
   // So sánh khuôn mặt hiện tại với ảnh xác thực
-  async verify(videoElement: HTMLVideoElement): Promise<{
+  async verify(videoElement: HTMLVideoElement, threshold = 0.6): Promise<{
     faceCount: number; isMatch: boolean; distance: number;
     landmarks: faceapi.FaceLandmarks68 | null;
   }> {
@@ -89,7 +89,7 @@ export class FaceVerification {
       // Chỉ dùng descriptor nếu cả 2 bên đều có descriptor
       if (this.recognitionLoaded && this.referenceDescriptor) {
         const detections = await faceapi
-          .detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions())
+          .detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3, inputSize: 416 }))
           .withFaceLandmarks()
           .withFaceDescriptors();
 
@@ -97,10 +97,10 @@ export class FaceVerification {
         
         const distance = faceapi.euclideanDistance(this.referenceDescriptor, detections[0].descriptor);
         // Ngưỡng 0.6 là tiêu chuẩn của face-api.js
-        return { faceCount: detections.length, isMatch: distance < 0.6, distance, landmarks: detections[0].landmarks };
+        return { faceCount: detections.length, isMatch: distance < threshold, distance, landmarks: detections[0].landmarks };
       } else {
         // Fallback: Chỉ đếm mặt
-        const detections = await faceapi.detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions());
+        const detections = await faceapi.detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3, inputSize: 416 }));
         return { faceCount: detections.length, isMatch: true, distance: 0, landmarks: null };
       }
     } catch (err) {

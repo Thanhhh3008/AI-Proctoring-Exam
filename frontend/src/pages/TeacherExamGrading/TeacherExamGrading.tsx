@@ -12,6 +12,22 @@ export default function TeacherExamGrading() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [totalStudents, setTotalStudents] = useState(0);
 
+  // Modal Sửa điểm & Nhận xét
+  const [adjustModal, setAdjustModal] = useState({ 
+    isOpen: false, 
+    session: null as any, 
+    score: '', 
+    comment: '' 
+  });
+
+  // Thông báo tùy chỉnh
+  const [notif, setNotif] = useState({ show: false, message: '', type: 'success' });
+
+  const showNotif = (message: string, type: 'success' | 'error' = 'success') => {
+    setNotif({ show: true, message, type });
+    setTimeout(() => setNotif({ show: false, message: '', type: 'success' }), 3000);
+  };
+
   useEffect(() => {
     const fetchSessions = async () => {
       try {
@@ -50,6 +66,33 @@ export default function TeacherExamGrading() {
       </div>
     );
   }
+
+  const handleOpenAdjustModal = (session: any) => {
+    setAdjustModal({
+      isOpen: true,
+      session,
+      score: session.totalScore?.toString() || '',
+      comment: session.teacherComment || ''
+    });
+  };
+
+  const handleSaveAdjustedGrade = async () => {
+    if (adjustModal.score === '') return showNotif('Vui lòng nhập điểm!', 'error');
+    try {
+      await axiosClient.patch(`/exams/sessions/${adjustModal.session.id}/adjust-grade`, {
+        score: parseFloat(adjustModal.score),
+        comment: adjustModal.comment
+      });
+      showNotif('Đã cập nhật điểm và nhận xét thành công!');
+      setAdjustModal({ ...adjustModal, isOpen: false });
+      
+      // Refresh list instead of reload if possible, but for now reload is safe
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      console.error(error);
+      showNotif('Lỗi khi cập nhật điểm!', 'error');
+    }
+  };
 
   return (
     <div className="eg-page">
@@ -148,18 +191,71 @@ export default function TeacherExamGrading() {
                   <td>{getStatusLabel(session)}</td>
                   <td style={{ textAlign: 'right' }}>
                     {session.status !== 'IN_PROGRESS' && (
-                      <button
-                        className={`eg-action-btn ${session.needsGrading ? 'eg-action-btn-primary' : ''}`}
-                        onClick={() => navigate(`/teacher/exam/${examId}/session/${session.id}/grade`)}
-                      >
-                        {session.needsGrading ? 'Chấm bài' : 'Xem bài'}
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <button
+                          className={`eg-action-btn ${session.needsGrading ? 'eg-action-btn-primary' : ''}`}
+                          onClick={() => navigate(`/teacher/exam/${examId}/session/${session.id}/grade`)}
+                        >
+                          {session.needsGrading ? 'Chấm bài' : 'Xem bài'}
+                        </button>
+                        <button
+                          className="eg-action-btn eg-btn-adjust"
+                          onClick={() => handleOpenAdjustModal(session)}
+                        >
+                          Sửa điểm
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Modal Sửa điểm & Nhận xét */}
+      {adjustModal.isOpen && (
+        <div className="eg-modal-overlay">
+          <div className="eg-modal">
+            <div className="eg-modal-header">
+              <h3>Sửa điểm & Nhận xét</h3>
+              <button onClick={() => setAdjustModal({ ...adjustModal, isOpen: false })}>×</button>
+            </div>
+            <div className="eg-modal-body">
+              <p>Sinh viên: <strong>{adjustModal.session?.student?.fullName}</strong></p>
+              
+              <div className="eg-form-group">
+                <label>Điểm tổng kết (Thang 10)</label>
+                <input 
+                  type="number" step="0.1" min="0" max="10"
+                  value={adjustModal.score}
+                  onChange={(e) => setAdjustModal({ ...adjustModal, score: e.target.value })}
+                />
+              </div>
+
+              <div className="eg-form-group">
+                <label>Nhận xét / Lý do trừ điểm</label>
+                <textarea 
+                  rows={4}
+                  placeholder="Ví dụ: Trừ 2đ do vi phạm thoát màn hình nhiều lần..."
+                  value={adjustModal.comment}
+                  onChange={(e) => setAdjustModal({ ...adjustModal, comment: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="eg-modal-footer">
+              <button className="eg-btn-cancel" onClick={() => setAdjustModal({ ...adjustModal, isOpen: false })}>Hủy</button>
+              <button className="eg-btn-submit" onClick={handleSaveAdjustedGrade}>Lưu thay đổi</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Thông báo Toast */}
+      {notif.show && (
+        <div className={`eg-toast eg-toast-${notif.type}`}>
+          {notif.type === 'success' ? '✓' : '✕'} {notif.message}
         </div>
       )}
     </div>

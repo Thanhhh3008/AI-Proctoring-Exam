@@ -9,5 +9,13 @@ export const classApi = {
   //  Gọi backend tự động tạo dữ liệu mẫu
   seedMockData: () => {
     return axiosClient.post('/classes/seed-mock-data');
+  },
+
+  // Admin methods
+  getAllClassesAdmin: () => {
+    return axiosClient.get('/classes/admin/all');
+  },
+  deleteClassAdmin: (id: string) => {
+    return axiosClient.delete(`/classes/admin/${id}`);
   }
 };

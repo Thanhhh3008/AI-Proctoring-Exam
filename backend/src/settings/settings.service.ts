@@ -9,7 +9,7 @@ export class SettingsService {
   private defaultSettings = {
     general: {
       siteName: 'Hệ thống thi trực tuyến AI',
-      contactEmail: 'admin@example.com',
+      contactEmail: 'admin@gmail.com',
       passwordPolicy: {
         minLength: 6,
         requireSpecialChar: false,
@@ -30,7 +30,7 @@ export class SettingsService {
       // Đảm bảo thư mục tồn tại
       const dir = path.dirname(this.filePath);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      
+
       this.saveSettings(this.defaultSettings);
       return this.defaultSettings;
     }

@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaLaptopCode, FaChalkboardTeacher, FaSignOutAlt, FaSearch, FaUserEdit,FaGraduationCap } from 'react-icons/fa';
-import axiosClient from '../../api/axiosClient'; 
+import { FaLaptopCode, FaChalkboardTeacher, FaSignOutAlt, FaSearch, FaUserEdit, FaGraduationCap, FaCalendarAlt, FaShieldAlt } from 'react-icons/fa';
+import axiosClient from '../../api/axiosClient';
 import './Header.css';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-const DEFAULT_COVER_IMAGE = '/images/default-course.jpg'; 
+const DEFAULT_COVER_IMAGE = '/images/default-course.jpg';
 export default function Header() {
   const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem('accessToken');
-  const userRole = localStorage.getItem('role'); 
-  
+  const userRole = localStorage.getItem('role');
+
   const [fullName, setFullName] = useState(localStorage.getItem('fullName') || 'Người dùng');
   const [avatarUrl, setAvatarUrl] = useState(localStorage.getItem('avatarUrl') || '');
 
@@ -101,7 +101,7 @@ export default function Header() {
 
         // Vẫn gọi chung API tìm kiếm public (vì API này quét toàn bộ hệ thống)
         const res = await axiosClient.get(`/public-classes/search/suggestions?q=${encodeURIComponent(value)}`, config);
-        
+
         // === LỌC DỮ LIỆU RIÊNG CHO GIẢNG VIÊN ===
         // Nếu API trả về biến teacherId, bạn có thể kiểm tra xem lớp đó có phải của mình không
         // Tuy nhiên, hiện tại API searchPublicClasses chỉ trả về isJoined (dành cho sinh viên)
@@ -126,11 +126,11 @@ export default function Header() {
       <Link to="/" className="exam-logo">
         <FaLaptopCode size={24} color="#00d8ff" /> EduExam
       </Link>
-      
+
       <nav className="exam-nav">
         <Link to="/">Trang chủ</Link>
         {userRole !== 'TEACHER' && (
-           <Link to="/available-classes">Khám phá</Link>
+          <Link to="/available-classes">Khám phá</Link>
         )}
         {isLoggedIn && userRole === 'STUDENT' && (
           <Link to="/dashboard">Các lớp học của tôi</Link>
@@ -140,18 +140,18 @@ export default function Header() {
       </nav>
 
       <div className="exam-actions">
-        
+
         {/* ========================================== */}
         {/* KHU VỰC TÌM KIẾM (CÓ GỢI Ý) */}
         {/* ========================================== */}
-      <div className="exam-search-course" ref={searchRef} style={{ position: 'relative' }}>
-          <input 
-            type="text" 
-            placeholder="Tìm kiếm khóa học, môn học..." 
+        <div className="exam-search-course" ref={searchRef} style={{ position: 'relative' }}>
+          <input
+            type="text"
+            placeholder="Tìm kiếm khóa học, môn học..."
             value={searchQuery}
             onChange={handleSearchChange}
-            onFocus={() => { if(searchQuery.trim()) setIsSearchFocused(true); }}
-            onKeyDown={(e) => { if(e.key === 'Enter') handleExecuteSearch(); }}
+            onFocus={() => { if (searchQuery.trim()) setIsSearchFocused(true); }}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleExecuteSearch(); }}
           />
           <button onClick={handleExecuteSearch}><FaSearch /></button>
 
@@ -160,7 +160,7 @@ export default function Header() {
           {isSearchFocused && searchQuery.trim() !== '' && (
             <div style={{
               position: 'absolute', top: '100%', left: 0, right: 0,
-              backgroundColor: 'white', borderRadius: '8px', 
+              backgroundColor: 'white', borderRadius: '8px',
               boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 9999,
               marginTop: '5px', border: '1px solid #e2e8f0',
               overflow: 'hidden'
@@ -173,32 +173,32 @@ export default function Header() {
                 <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                   {suggestions.map((item) => {
                     const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-                    const finalCoverUrl = item.coverImageUrl 
-                      ? (item.coverImageUrl.startsWith('http') ? item.coverImageUrl : `${BACKEND_URL}${item.coverImageUrl}`) 
-                      : DEFAULT_COVER_IMAGE; 
+                    const finalCoverUrl = item.coverImageUrl
+                      ? (item.coverImageUrl.startsWith('http') ? item.coverImageUrl : `${BACKEND_URL}${item.coverImageUrl}`)
+                      : DEFAULT_COVER_IMAGE;
 
                     return (
-                      <li 
+                      <li
                         key={item.id}
-                        style={{ 
+                        style={{
                           padding: '10px 15px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer',
                           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '15px',
-                          backgroundColor: item.isJoined ? '#f8fafc' : 'white' 
+                          backgroundColor: item.isJoined ? '#f8fafc' : 'white'
                         }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = item.isJoined ? '#f8fafc' : 'white'}
                         onClick={() => {
                           setIsSearchFocused(false);
-                          setSearchQuery(''); 
-                          
+                          setSearchQuery('');
+
                           // ===============================================
                           // ĐIỀU HƯỚNG THÔNG MINH DỰA VÀO ROLE CỦA NGƯỜI DÙNG
                           // ===============================================
                           if (userRole === 'TEACHER') {
                             // Giảng viên luôn được chuyển vào trang QUẢN LÝ LỚP HỌC
                             // (Mặc định họ sẽ xem được chi tiết lớp học để tham khảo hoặc chỉnh sửa nếu là của họ)
-                            navigate(`/teacher/class/${item.id}`); 
-                          } 
+                            navigate(`/teacher/class/${item.id}`);
+                          }
                           else {
                             // Sinh viên hoặc Khách
                             if (item.isJoined) {
@@ -217,7 +217,7 @@ export default function Header() {
                             </span>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                               <span style={{ color: '#64748b', fontSize: '12px' }}>Mã lớp: {item.code}</span>
-                              
+
                               {/* Chỉ hiện nhãn Đã tham gia nếu KHÔNG PHẢI Giảng viên */}
                               {item.isJoined && userRole !== 'TEACHER' && (
                                 <span style={{ backgroundColor: '#dcfce7', color: '#16a34a', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
@@ -229,14 +229,14 @@ export default function Header() {
                         </div>
 
                         <div style={{ flexShrink: 0 }}>
-                          <img 
-                            src={finalCoverUrl} 
-                            alt={item.name} 
-                            style={{ 
-                              width: '45px', height: '32px', objectFit: 'cover', 
+                          <img
+                            src={finalCoverUrl}
+                            alt={item.name}
+                            style={{
+                              width: '45px', height: '32px', objectFit: 'cover',
                               borderRadius: '4px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                               opacity: item.isJoined && userRole !== 'TEACHER' ? 0.8 : 1
-                            }} 
+                            }}
                           />
                         </div>
                       </li>
@@ -260,14 +260,14 @@ export default function Header() {
                 <span className="exam-user-name" style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>
                   {fullName}
                 </span>
-                
-                <div className="header-avatar-circle" style={{ 
-                  width: '32px', height: '32px', borderRadius: '50%', 
-                  overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' 
+
+                <div className="header-avatar-circle" style={{
+                  width: '32px', height: '32px', borderRadius: '50%',
+                  overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)'
                 }}>
-                  <img 
-                    src={getAvatarSource()} 
-                    alt="User Avatar" 
+                  <img
+                    src={getAvatarSource()}
+                    alt="User Avatar"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={(e) => {
                       e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random&color=fff`;
@@ -276,13 +276,13 @@ export default function Header() {
                 </div>
               </div>
             </div>
-            
-          {isDropdownOpen && (
+
+            {isDropdownOpen && (
               <div className="exam-dropdown">
                 <div className="exam-drop-header">
                   Xin chào, <span>{fullName}</span>!
                 </div>
-                
+
                 {/* Dành cho Giảng viên */}
                 {userRole === 'TEACHER' && (
                   <div className="exam-drop-item" onClick={() => { setIsDropdownOpen(false); navigate('/teacher-dashboard'); }}>
@@ -290,18 +290,32 @@ export default function Header() {
                   </div>
                 )}
 
-               
+
                 {userRole === 'STUDENT' && (
                   <div className="exam-drop-item" onClick={() => { setIsDropdownOpen(false); navigate('/dashboard'); }}>
                     <FaGraduationCap /> Các lớp học của tôi
                   </div>
                 )}
 
+                {userRole === 'STUDENT' && (
+                  <div className="exam-drop-item" onClick={() => { setIsDropdownOpen(false); navigate('/student-schedule'); }}>
+                    <FaCalendarAlt /> Lịch biểu của tôi
+                  </div>
+                )}
+
+                {/* Dành cho Admin */}
+                {userRole === 'ADMIN' && (
+                  <div className="exam-drop-item" onClick={() => { setIsDropdownOpen(false); navigate('/admin'); }}>
+                    <FaShieldAlt /> Trang quản trị
+                  </div>
+                )}
+
+
                 {/* Dành cho Mọi User */}
                 <div className="exam-drop-item" onClick={() => { setIsDropdownOpen(false); navigate('/profile'); }}>
                   <FaUserEdit /> Hồ sơ cá nhân
                 </div>
-                
+
                 <div className="exam-drop-item text-red" onClick={handleLogout}>
                   <FaSignOutAlt /> Đăng xuất
                 </div>

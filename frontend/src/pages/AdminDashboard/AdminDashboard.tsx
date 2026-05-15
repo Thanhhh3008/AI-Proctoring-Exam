@@ -20,6 +20,7 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
+import axiosClient from '../../api/axiosClient';
 
 const { Title, Text } = Typography;
 
@@ -70,6 +71,23 @@ const recentExams = [
 ];
 
 const AdminDashboard: React.FC = () => {
+  const [stats, setStats] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await axiosClient.get('/admin/stats/summary');
+        setStats(res.data);
+      } catch (error) {
+        console.error('Lỗi khi tải thống kê admin:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const columns = [
     {
       title: 'Tên kỳ thi',
@@ -113,7 +131,7 @@ const AdminDashboard: React.FC = () => {
           <Card variant="borderless" hoverable>
             <Statistic
               title="Tổng sinh viên"
-              value={1250}
+              value={loading ? '...' : stats?.totalStudents || 0}
               prefix={<UserOutlined style={{ color: '#1677ff' }} />}
               suffix={<span style={{ fontSize: 12, color: '#3f8600' }}><ArrowUpOutlined /> 12%</span>}
             />
@@ -123,7 +141,7 @@ const AdminDashboard: React.FC = () => {
           <Card variant="borderless" hoverable>
             <Statistic
               title="Tổng giáo viên"
-              value={48}
+              value={loading ? '...' : stats?.totalTeachers || 0}
               prefix={<TeamOutlined style={{ color: '#52c41a' }} />}
               suffix={<span style={{ fontSize: 12, color: '#3f8600' }}><ArrowUpOutlined /> 4%</span>}
             />
@@ -132,8 +150,8 @@ const AdminDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card variant="borderless" hoverable>
             <Statistic
-              title="Kỳ thi đang chạy"
-              value={15}
+              title="Kỳ thi sử dụng AI"
+              value={loading ? '...' : stats?.totalAIExams || 0}
               prefix={<SafetyCertificateOutlined style={{ color: '#faad14' }} />}
             />
           </Card>
@@ -141,8 +159,8 @@ const AdminDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card variant="borderless" hoverable>
             <Statistic
-              title="Cảnh báo AI (Hôm nay)"
-              value={36}
+              title="Cảnh báo AI "
+              value={loading ? '...' : stats?.totalViolations || 0}
               styles={{ content: { color: '#cf1322' } }}
               prefix={<AlertOutlined />}
               suffix={<span style={{ fontSize: 12, color: '#cf1322' }}><ArrowDownOutlined /> 2%</span>}

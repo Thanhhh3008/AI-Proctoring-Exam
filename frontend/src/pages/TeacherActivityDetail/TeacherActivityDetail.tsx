@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Modal } from 'antd';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   FaCheckSquare, FaFileUpload, FaGlobe, FaEdit,
@@ -191,6 +192,25 @@ export default function TeacherActivityDetail() {
   const handleAddBank = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
     if (!selectedId) return;
+
+    if (selectedId === "ADD_NEW_BANK") {
+      const classId = (activity as any)?.section?.classId;
+      if (classId) {
+        Modal.confirm({
+          title: 'Chuyển đến trang Ngân hàng câu hỏi',
+          content: 'Hệ thống sẽ chuyển bạn đến trang quản lý Ngân hàng câu hỏi của lớp. Các thay đổi chưa lưu trong cấu hình này có thể bị mất. Bạn có muốn tiếp tục?',
+          okText: 'Tiếp tục',
+          cancelText: 'Hủy bỏ',
+          zIndex: 11000, // Đảm bảo nổi lên trên modal sinh đề
+          onOk: () => {
+            navigate(`/teacher/class/${classId}?tab=nganhang`);
+          }
+        });
+      }
+      e.target.value = "";
+      return;
+    }
+
     if (!generationRules.bankIds.includes(selectedId)) {
       setGenerationRules(prev => ({ ...prev, bankIds: [...prev.bankIds, selectedId] }));
     }
@@ -365,7 +385,7 @@ export default function TeacherActivityDetail() {
           durationMinutes: Number(examSettings.durationMinutes),
           maxQuestions: Number(examSettings.maxQuestions),
           status: examSettings.status,
-          strictMode: examSettings.strictMode,
+          strictMode: false, // Luôn tắt Strict Mode (Fullscreen) theo yêu cầu
           requireCamera: examSettings.requireCamera
         });
       }
@@ -483,7 +503,7 @@ export default function TeacherActivityDetail() {
 
       {/* MODAL CẤU HÌNH RÚT ĐỀ TỰ ĐỘNG */}
       {isRuleModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9000 }}>
           <div style={{ width: '700px', maxWidth: '95%', backgroundColor: 'white', borderRadius: '12px', padding: '0', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
 
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f8fafc', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
@@ -507,6 +527,7 @@ export default function TeacherActivityDetail() {
                       {b.name}
                     </option>
                   ))}
+                  <option value="ADD_NEW_BANK" style={{ color: '#8b5cf6', fontWeight: 'bold' }}>+ Thêm ngân hàng câu hỏi mới</option>
                 </select>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '12px' }}>
@@ -767,8 +788,9 @@ export default function TeacherActivityDetail() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '16px', flexDirection: 'column', backgroundColor: '#f8fafc', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={examSettings.strictMode} onChange={e => setExamSettings({ ...examSettings, strictMode: e.target.checked })} style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: '#2563eb' }} />
+                  {/* Ẩn Strict Mode theo yêu cầu: Chuyển tab luôn báo vi phạm, không cần Toàn màn hình */}
+                  <label style={{ display: 'none', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={false} readOnly style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: '#2563eb' }} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <div style={{ fontWeight: '600', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '6px' }}><FaDesktop color="#64748b" /> Chế độ chống gian lận (Strict Mode)</div>
                       <div style={{ fontSize: '13px', color: '#64748b' }}>Yêu cầu trình duyệt toàn màn hình (Full-screen), ghi log khi chuyển tab và vô hiệu hóa chức năng Copy-Paste.</div>
@@ -882,7 +904,6 @@ export default function TeacherActivityDetail() {
                     <div>
                       <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '4px' }}>Hệ thống Bảo mật</div>
                       <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
-                        <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '4px', backgroundColor: examData?.strictMode ? '#dbeafe' : '#f1f5f9', color: examData?.strictMode ? '#1e40af' : '#64748b', fontWeight: '600' }} title="Strict Mode">{examData?.strictMode ? 'Strict: ON' : 'Strict: OFF'}</span>
                         <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '4px', backgroundColor: examData?.requireCamera ? '#dbeafe' : '#f1f5f9', color: examData?.requireCamera ? '#1e40af' : '#64748b', fontWeight: '600' }} title="Camera Requirement">{examData?.requireCamera ? 'Camera: ON' : 'Camera: OFF'}</span>
                       </div>
                     </div>
@@ -991,7 +1012,7 @@ export default function TeacherActivityDetail() {
                     </div>
 
                     {/* CARD: GIÁM SÁT AI */}
-                    {(examData?.strictMode || examData?.requireCamera) && (
+                    {activity.type === 'EXAM' && (
                       <div className="management-card" style={{
                         backgroundColor: 'white', borderRadius: '12px', border: '1px solid #fee2e2',
                         padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px',

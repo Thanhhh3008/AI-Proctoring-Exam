@@ -3,6 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 import './TeacherExamGrading.css';
 
+const VIOLATION_LABELS: Record<string, string> = {
+  TAB_SWITCH: 'Rời màn hình/Chuyển tab',
+  FULLSCREEN_EXITED: 'Thoát toàn màn hình',
+  COPY_PASTE: 'Thao tác chặn',
+  MULTIPLE_FACES: 'Phát hiện nhiều người',
+  NO_FACE: 'Không thấy mặt',
+  DIFFERENT_PERSON: 'Sai người thi',
+  LOOKING_AWAY: 'Nghi vấn nhìn chỗ khác',
+  PHONE_DETECTED: 'Dùng điện thoại',
+  STATIC_IMAGE: 'Sử dụng ảnh tĩnh',
+};
+
 export default function TeacherExamGradingDetail() {
   const { examId, sessionId } = useParams();
   const navigate = useNavigate();
@@ -409,14 +421,7 @@ export default function TeacherExamGradingDetail() {
                 </div>
                 {violationLogs.map((log: any, idx: number) => (
                   <div key={idx} className="gr-violation-item">
-                    {new Date(log.timestamp).toLocaleTimeString('vi-VN')} — {log.type}
-                    {log.metadata?.logs && (
-                      <ul style={{ margin: '4px 0 0 16px', fontSize: '11px', listStyle: 'none', padding: 0 }}>
-                        {(log.metadata.logs as string[]).map((l: string, i: number) => (
-                          <li key={i} style={{ padding: '2px 0' }}>{l}</li>
-                        ))}
-                      </ul>
-                    )}
+                    {new Date(log.timestamp).toLocaleTimeString('vi-VN')} — {VIOLATION_LABELS[log.type] || log.type}
                   </div>
                 ))}
               </div>

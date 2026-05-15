@@ -191,9 +191,9 @@
 .cs-tab-pill:hover { background: #f5f5f5; }
 
 .cs-tab-pill.active {
-    background: #1f1f1f;
+    background-color: #2563eb;
     color: white;
-    border-color: #1f1f1f;
+    border-color: #2563eb;
 }
 
 /* DANH SÁCH KHÓA HỌC (THẺ NGANG CÓ THỂ KÉO DÀI HƠN) */

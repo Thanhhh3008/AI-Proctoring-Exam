@@ -63,12 +63,51 @@ export class UsersController {
     return this.usersService.changePassword(userId, dto);
   }
 
-  // --- ADMIN ENDPOINTS ---
+  // --- UPLOAD ẢNH CHÂN DUNG (ảNH XÁC THỰC KHUÔN MẶT) ---
+  @Post('face-photo')
+  @UseInterceptors(
+    FileInterceptor('facePhoto', {
+      storage: diskStorage({
+        destination: './uploads/face-photos',
+        filename: (req, file, cb) => {
+          const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+          return cb(null, `face_${randomName}${extname(file.originalname)}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+          return cb(new BadRequestException('Chỉ chấp nhận file ảnh JPG, JPEG, PNG!'), false);
+        }
+        cb(null, true);
+      },
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    }),
+  )
+  async uploadFacePhoto(
+    @Request() req,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('Định kèm ảnh chân dung!');
+    const userId = req.user.id || req.user.userId || req.user.sub;
+    const facePhotoUrl = `/uploads/face-photos/${file.filename}`;
+    return this.usersService.updateFacePhoto(userId, facePhotoUrl);
+  }
+
+  // --- ADMIN: DUYỆT ẢNH CHÂN DUNG ---
+  @Patch(':id/approve-face')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(RolesGuard)
+  async approveFacePhoto(
+    @Param('id') id: string,
+    @Body() body: { approved: boolean; reason?: string },
+  ) {
+    return this.usersService.approveFacePhoto(id, body.approved);
+  }
 
   @Get()
   @Roles(UserRole.ADMIN)
   @UseGuards(RolesGuard)
-  async findAll(@Query() query: { search?: string; role?: string }) {
+  async findAll(@Query() query: { search?: string; role?: string; pendingFace?: string }) {
     return this.usersService.findAll(query);
   }
 

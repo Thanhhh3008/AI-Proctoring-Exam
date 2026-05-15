@@ -30,6 +30,8 @@ export class ExamsService {
     let studentScore: number | null = null; 
     let studentSessionId: string | null = null;
     
+    let teacherComment: string | null = null;
+    
     if (studentId) {
       const session = await this.prisma.examSession.findUnique({
         where: { examId_studentId: { examId: id, studentId } }
@@ -38,10 +40,11 @@ export class ExamsService {
         studentSessionStatus = session.status;
         studentScore = session.totalScore ? session.totalScore.toNumber() : null;
         studentSessionId = session.id;
+        teacherComment = session.teacherComment;
       }
     }
 
-    return { ...exam, currentDisplayStatus, studentSessionStatus, studentScore, studentSessionId };
+    return { ...exam, currentDisplayStatus, studentSessionStatus, studentScore, studentSessionId, teacherComment };
   }
   async updateExam(id: string, data: any) {
     const existingExam = await this.prisma.exam.findUnique({
@@ -316,7 +319,8 @@ export class ExamsService {
         essayCount: essayAnswers.length,
         ungradedCount: ungradedEssays.length,
         needsGrading,
-        hasEssay
+        hasEssay,
+        teacherComment: session.teacherComment
       };
     });
 
@@ -378,7 +382,8 @@ export class ExamsService {
         status: session.status,
         startTime: session.startTime,
         submitTime: session.submitTime,
-        totalScore: session.totalScore ? Number(session.totalScore) : null
+        totalScore: session.totalScore ? Number(session.totalScore) : null,
+        teacherComment: session.teacherComment
       },
       student: session.student,
       exam: session.exam,
@@ -458,5 +463,25 @@ export class ExamsService {
       allGraded: false,
       totalScore: null
     };
+  }
+
+  // =======================================================
+  // 7. GIẢNG VIÊN ĐIỀU CHỈNH TỔNG ĐIỂM & NHẬN XÉT (CHUNG)
+  // =======================================================
+  async adjustSessionGrade(sessionId: string, score: number, comment: string) {
+    const session = await this.prisma.examSession.findUnique({
+      where: { id: sessionId }
+    });
+
+    if (!session) throw new NotFoundException('Không tìm thấy phiên thi');
+
+    return this.prisma.examSession.update({
+      where: { id: sessionId },
+      data: {
+        totalScore: score,
+        teacherComment: comment,
+        status: 'GRADED' // Đánh dấu là đã chấm xong hoàn toàn
+      }
+    });
   }
 }

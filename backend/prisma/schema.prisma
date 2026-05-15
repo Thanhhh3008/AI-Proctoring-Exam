@@ -86,6 +86,7 @@ model User {
   
   avatarUrl         String?  @map("avatar_url") @db.Text
   baseFaceUrl       String?  @map("base_face_url") @db.Text
+  facePhotoVerified Boolean  @default(false) @map("face_photo_verified")
   isVerified        Boolean  @default(false) @map("is_verified")
   verificationToken String?  @map("verification_token") @db.VarChar(255)
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz()
@@ -248,6 +249,7 @@ model ExamSession {
   ipAddress    String?       @map("ip_address") @db.VarChar(45)
   userAgent    String?       @map("user_agent") @db.Text
   referencePhoto String?     @map("reference_photo") @db.Text
+  teacherComment String?     @map("teacher_comment") @db.Text
 
   exam          Exam            @relation(fields: [examId], references: [id], onDelete: Cascade)
   student       User            @relation(fields: [studentId], references: [id], onDelete: Cascade)

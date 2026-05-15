@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
 import { 
   FaUser, FaCamera, FaLock, FaSave, FaEnvelope, FaShieldAlt, 
-  FaChevronRight, FaEye, FaEyeSlash, FaSignOutAlt 
+  FaChevronRight, FaEye, FaEyeSlash, FaSignOutAlt, FaIdCard,
+  FaCheckCircle, FaClock, FaExclamationTriangle, FaUpload
 } from 'react-icons/fa';
+import { notification } from 'antd';
 import './ProfilePage.css';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -20,6 +22,14 @@ export default function ProfilePage() {
   const [avatarPreview, setAvatarPreview] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
+  // States Ảnh chân dung (Xác thực khuôn mặt)
+  const [baseFaceUrl, setBaseFaceUrl] = useState<string | null>(null);
+  const [facePhotoVerified, setFacePhotoVerified] = useState(false);
+  const [facePhotoFile, setFacePhotoFile] = useState<File | null>(null);
+  const [facePhotoPreview, setFacePhotoPreview] = useState<string | null>(null);
+  const [facePhotoLoading, setFacePhotoLoading] = useState(false);
+  const facePhotoInputRef = useRef<HTMLInputElement>(null);
+
   // States Mật khẩu
   const [passwords, setPasswords] = useState({ old: '', new: '', confirm: '' });
   
@@ -36,9 +46,9 @@ export default function ProfilePage() {
         const res = await axiosClient.get('/users/me');
         setFullName(res.data.fullName);
         setEmail(res.data.email);
-        if (res.data.avatarUrl) {
-          setAvatarPreview(res.data.avatarUrl);
-        }
+        if (res.data.avatarUrl) setAvatarPreview(res.data.avatarUrl);
+        if (res.data.baseFaceUrl) setBaseFaceUrl(res.data.baseFaceUrl);
+        setFacePhotoVerified(res.data.facePhotoVerified || false);
       } catch (err) {
         console.error("Lỗi lấy thông tin người dùng:", err);
       }
@@ -69,28 +79,70 @@ export default function ProfilePage() {
       localStorage.setItem('fullName', res.data.fullName);
       if (res.data.avatarUrl) localStorage.setItem('avatarUrl', res.data.avatarUrl);
       
-      alert("Cập nhật hồ sơ thành công!");
+      notification.success({ message: 'Cập nhật hồ sơ thành công!' });
     } catch (err) {
-      alert("Lỗi khi cập nhật thông tin!");
+      notification.error({ message: 'Lỗi khi cập nhật thông tin!' });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleFacePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      notification.error({ message: 'Kích thước ảnh không được vượt quá 5MB!' });
+      return;
+    }
+    setFacePhotoFile(file);
+    setFacePhotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleUploadFacePhoto = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!facePhotoFile) {
+      notification.warning({ message: 'Vui lòng chọn ảnh chân dung!' });
+      return;
+    }
+    setFacePhotoLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('facePhoto', facePhotoFile);
+      const res = await axiosClient.post('/users/face-photo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setBaseFaceUrl(res.data.baseFaceUrl);
+      setFacePhotoVerified(false); // Đang chờ duyệt
+      setFacePhotoFile(null);
+      setFacePhotoPreview(null);
+      notification.success({
+        message: 'Tải ảnh thành công!',
+        description: 'Ảnh chân dung của bạn đã được gửi cho Admin xác nhận. Hãy chờ đợi phản hồi.',
+        duration: 6,
+      });
+    } catch (err: any) {
+      notification.error({ message: err.response?.data?.message || 'Lỗi khi tải ảnh!' });
+    } finally {
+      setFacePhotoLoading(false);
+    }
+  };
+
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwords.new !== passwords.confirm) return alert("Mật khẩu mới không khớp!");
-
+    if (passwords.new !== passwords.confirm) {
+      notification.error({ message: 'Mật khẩu mới không khớp!' });
+      return;
+    }
     setLoading(true);
     try {
       await axiosClient.post('/users/change-password', {
         oldPassword: passwords.old,
         newPassword: passwords.new
       });
-      alert("Đổi mật khẩu thành công!");
+      notification.success({ message: 'Đổi mật khẩu thành công!' });
       setPasswords({ old: '', new: '', confirm: '' });
     } catch (err: any) {
-      alert(err.response?.data?.message || "Lỗi đổi mật khẩu");
+      notification.error({ message: err.response?.data?.message || 'Lỗi đổi mật khẩu' });
     } finally {
       setLoading(false);
     }
@@ -136,6 +188,24 @@ export default function ProfilePage() {
               <FaUser /> <span>Thông tin cá nhân</span>
               <FaChevronRight className="arrow" />
             </button>
+
+            {/* Chỉ hiển thị với Sinh viên */}
+            {localStorage.getItem('role') === 'STUDENT' && (
+              <button 
+                  className={`pp-menu-item ${activeTab === 'facePhoto' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('facePhoto')}
+              >
+                <FaIdCard /> <span>Ảnh xác thực khuôn mặt</span>
+                {!facePhotoVerified && baseFaceUrl && (
+                  <span style={{ marginLeft: 'auto', width: 8, height: 8, borderRadius: '50%', backgroundColor: '#f59e0b', display: 'inline-block' }} title="Đang chờ duyệt" />
+                )}
+                {facePhotoVerified && (
+                  <FaCheckCircle size={12} color="#10b981" style={{ marginLeft: 'auto' }} />
+                )}
+                <FaChevronRight className="arrow" />
+              </button>
+            )}
+
             <button 
                 className={`pp-menu-item ${activeTab === 'security' ? 'active' : ''}`}
                 onClick={() => setActiveTab('security')}
@@ -155,7 +225,83 @@ export default function ProfilePage() {
         {/* NỘI DUNG BÊN PHẢI */}
         <main className="pp-content">
           
-          {activeTab === 'info' ? (
+          {activeTab === 'facePhoto' ? (
+            <div className="pp-card fade-in">
+              <h2 className="pp-title">Ảnh xác thực khuôn mặt</h2>
+              <p className="pp-subtitle">Hình ảnh chân dung này được sử dụng để xác nhận danh tính của bạn trong quá trình thi cử có bật chế độ giám sát AI.</p>
+
+              {/* Trạng thái hiện tại */}
+              {baseFaceUrl ? (
+                <div style={{ marginBottom: 24, padding: '16px', borderRadius: 10, backgroundColor: facePhotoVerified ? '#f0fdf4' : '#fffbeb', border: `1px solid ${facePhotoVerified ? '#86efac' : '#fde68a'}`, display: 'flex', alignItems: 'center', gap: 14 }}>
+                  {facePhotoVerified
+                    ? <FaCheckCircle size={22} color="#16a34a" />
+                    : <FaClock size={22} color="#d97706" />
+                  }
+                  <div>
+                    <div style={{ fontWeight: 700, color: facePhotoVerified ? '#15803d' : '#92400e', fontSize: 15 }}>
+                      {facePhotoVerified ? 'Ảnh đã được xác nhận bởi Admin' : 'Đang chờ Admin xác nhận'}
+                    </div>
+                    <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>
+                      {facePhotoVerified
+                        ? 'Ảnh của bạn sẽ được dùng để xác thực danh tính trong kỳ thi.'
+                        : 'Ảnh đã được gửi đi, vui lòng chờ Admin xem xét. Bạn có thể cập nhật ảnh mới nếu muốn.'}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ marginBottom: 24, padding: '16px', borderRadius: 10, backgroundColor: '#fef2f2', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <FaExclamationTriangle size={22} color="#dc2626" />
+                  <div>
+                    <div style={{ fontWeight: 700, color: '#991b1b', fontSize: 15 }}>Chưa có ảnh xác thực</div>
+                    <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>Bạn cần tải lên ảnh chân dung để tham gia các kỳ thi có giám sát AI.</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Hiển thị ảnh hiện tại */}
+              {baseFaceUrl && (
+                <div style={{ marginBottom: 24, textAlign: 'center' }}>
+                  <p style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>Ảnh đã đăng ký:</p>
+                  <img
+                    src={baseFaceUrl.startsWith('http') ? baseFaceUrl : `${BACKEND_URL}${baseFaceUrl}`}
+                    alt="Ảnh chân dung"
+                    style={{ width: 180, height: 220, objectFit: 'cover', borderRadius: 10, border: '3px solid ' + (facePhotoVerified ? '#86efac' : '#fde68a'), boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                </div>
+              )}
+
+              {/* Form upload ảnh mới */}
+              <form onSubmit={handleUploadFacePhoto}>
+                <div className="pp-form-group">
+                  <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>{baseFaceUrl ? 'Cập nhật ảnh mới' : 'Tải lên ảnh chân dung'}</label>
+                  <div
+                    onClick={() => facePhotoInputRef.current?.click()}
+                    style={{ border: '2px dashed #cbd5e1', borderRadius: 10, padding: 24, textAlign: 'center', cursor: 'pointer', backgroundColor: '#f8fafc', transition: 'border-color 0.2s' }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#6366f1')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = '#cbd5e1')}
+                  >
+                    {facePhotoPreview ? (
+                      <img src={facePhotoPreview} alt="Preview" style={{ width: 160, height: 200, objectFit: 'cover', borderRadius: 8 }} />
+                    ) : (
+                      <div>
+                        <FaUpload size={32} color="#94a3b8" style={{ marginBottom: 10 }} />
+                        <p style={{ color: '#64748b', margin: 0, fontSize: 14 }}>Nhấn để chọn ảnh chân dung rõ nét</p>
+                        <p style={{ color: '#94a3b8', margin: '4px 0 0', fontSize: 12 }}>JPG, PNG · Tối đa 5MB · Ảnh thẳng mặt, đủ sáng</p>
+                      </div>
+                    )}
+                  </div>
+                  <input type="file" ref={facePhotoInputRef} hidden onChange={handleFacePhotoChange} accept="image/jpg,image/jpeg,image/png" />
+                </div>
+
+                {facePhotoPreview && (
+                  <button type="submit" className="pp-btn-primary" disabled={facePhotoLoading} style={{ marginTop: 16 }}>
+                    <FaUpload /> {facePhotoLoading ? 'Đang tải lên...' : 'Gửi ảnh cho Admin xác nhận'}
+                  </button>
+                )}
+              </form>
+            </div>
+          ) : activeTab === 'info' ? (
             <div className="pp-card fade-in">
               <h2 className="pp-title">Cài đặt hồ sơ</h2>
               <p className="pp-subtitle">Quản lý thông tin công khai và ảnh đại diện của bạn</p>

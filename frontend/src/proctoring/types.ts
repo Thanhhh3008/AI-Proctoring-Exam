@@ -25,12 +25,12 @@ export const DEFAULT_PROCTORING_CONFIG: ProctoringConfig = {
   faceMatchThreshold: 0.55, //càng cao càng khó phân biệt
   headPoseYawThreshold: 20,//quay đầu quá 20 độ
   headPosePitchThreshold: 20,//cúi đầu quá 20 độ
-  lookingAwayDuration: 5,//thời gian quay đầu
-  faceAbsenceDuration: 10,//không thấy mặt quá 10 giây
+  lookingAwayDuration: 5,//quay đầu quá 5 giây mới báo vi phạm
+  faceAbsenceDuration: 5,//không thấy mặt quá 10 giây mới báo vi phạm
   objectDetectionInterval: 2000,//2s quét đt
-  objectDetectionConfidence: 0.2,//ngưỡng tin cậy
+  objectDetectionConfidence: 0.15,//ngưỡng tin cậy
   opticalFlowThreshold: 2.0,//ngưỡng nhạy cảm với chuyển động
-  staticImageDuration: 30,//ảnh tĩnh quá 30 giây
+  staticImageDuration: 15,//ảnh tĩnh quá 30 giây
 };
 
 

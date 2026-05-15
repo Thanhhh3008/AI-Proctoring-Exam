@@ -7,19 +7,19 @@ export class ClassesService {
   constructor(
     private prisma: PrismaService,
     private mailService: MailService
-  ) {}
+  ) { }
 
   // ==========================================
   // 1. TẠO LỚP HỌC MỚI (Đã thêm Price)
   // ==========================================
-  async createClass(data: { 
-    subjectIdOrName: string; 
-    teacherId: string; 
-    classCode: string; 
+  async createClass(data: {
+    subjectIdOrName: string;
+    teacherId: string;
+    classCode: string;
     maxStudents: number;
-    price: number; 
+    price: number;
   }) {
-    
+
     if (!data.subjectIdOrName || data.subjectIdOrName.trim() === '') {
       throw new BadRequestException("Lỗi: Dữ liệu môn học bị trống.");
     }
@@ -29,24 +29,24 @@ export class ClassesService {
       const cleanInput = data.subjectIdOrName.trim();
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanInput);
 
-      let existingSubject: any = null; 
+      let existingSubject: any = null;
 
       if (isUUID) {
         existingSubject = await tx.subject.findUnique({ where: { id: cleanInput } });
       } else {
         existingSubject = await tx.subject.findFirst({
-          where: { name: { equals: cleanInput, mode: 'insensitive' } } 
+          where: { name: { equals: cleanInput, mode: 'insensitive' } }
         });
       }
 
       if (existingSubject) {
         finalSubjectId = existingSubject.id;
       } else {
-        const autoCode = `SUB_${Date.now()}`; 
+        const autoCode = `SUB_${Date.now()}`;
         const newSubject = await tx.subject.create({
           data: { name: cleanInput, subjectCode: autoCode }
         });
-        finalSubjectId = newSubject.id; 
+        finalSubjectId = newSubject.id;
       }
 
       const existingClass = await tx.class.findUnique({
@@ -60,9 +60,9 @@ export class ClassesService {
       const newClass = await tx.class.create({
         data: {
           classCode: data.classCode,
-          maxStudents: data.maxStudents, 
-          price: data.price >= 0 ? data.price : 0, 
-          status: 'ACTIVE', 
+          maxStudents: data.maxStudents,
+          price: data.price >= 0 ? data.price : 0,
+          status: 'ACTIVE',
           subject: { connect: { id: finalSubjectId } },
           teacher: { connect: { id: data.teacherId } }
         },
@@ -104,7 +104,7 @@ export class ClassesService {
 
     return this.prisma.class.update({
       where: { id: classId },
-      data: { status: 'ACTIVE' } 
+      data: { status: 'ACTIVE' }
     });
   }
 
@@ -113,7 +113,7 @@ export class ClassesService {
       where: { teacherId: teacherId },
       include: {
         subject: true,
-        _count: { select: { students: true } }, 
+        _count: { select: { students: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -124,7 +124,7 @@ export class ClassesService {
       subjectName: c.subject?.name || 'Môn học ẩn',
       subjectCode: c.subject?.subjectCode || 'N/A',
       maxStudents: c.maxStudents,
-      price: c.price, 
+      price: c.price,
       status: c.status,
       coverImageUrl: c.coverImageUrl,
       studentCount: c._count?.students || 0,
@@ -140,7 +140,7 @@ export class ClassesService {
           include: {
             subject: true,
             teacher: { select: { fullName: true, email: true } },
-            _count: { select: { students: true } }, 
+            _count: { select: { students: true } },
           },
         },
       },
@@ -157,7 +157,7 @@ export class ClassesService {
       status: cs.class.status,
       joinedAt: cs.joinedAt,
       studentCount: cs.class._count?.students || 0,
-      coverImageUrl: cs.class.coverImageUrl, 
+      coverImageUrl: cs.class.coverImageUrl,
     }));
   }
 
@@ -166,15 +166,15 @@ export class ClassesService {
       where: { id: classId },
       include: {
         subject: true,
-        teacher: { select: { fullName: true, avatarUrl: true, email: true } }, 
+        teacher: { select: { fullName: true, avatarUrl: true, email: true } },
         courseSections: {
-          include: { 
-            activities: { 
+          include: {
+            activities: {
               include: { exam: true }, // THÊM DÒNG NÀY ĐỂ LẤY THỜI GIAN THI
-              orderBy: { createdAt: 'asc' } 
-            } 
+              orderBy: { createdAt: 'asc' }
+            }
           },
-          orderBy: { order: 'asc' } 
+          orderBy: { order: 'asc' }
         },
         _count: { select: { students: true } }
       }
@@ -184,13 +184,13 @@ export class ClassesService {
 
     return {
       course: {
-        teacherId: classObj.teacherId, 
+        teacherId: classObj.teacherId,
         subjectName: classObj.subject?.name || 'Môn học',
         subjectCode: classObj.subject?.subjectCode || 'N/A',
         classCode: classObj.classCode,
         maxStudents: classObj.maxStudents,
         currentStudents: classObj._count?.students || 0,
-        price: classObj.price, 
+        price: classObj.price,
         status: classObj.status,
         coverImageUrl: classObj.coverImageUrl || null,
         teacherName: classObj.teacher?.fullName || 'Khoa/Bộ môn',
@@ -208,18 +208,18 @@ export class ClassesService {
         subject: true,
         teacher: { select: { fullName: true, avatarUrl: true } },
         _count: { select: { students: true, courseSections: true, reviews: true } },
-        students: { where: { studentId } }, 
-        reviews: { select: { rating: true } } 
+        students: { where: { studentId } },
+        reviews: { select: { rating: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
 
     return allClasses
-      .filter(c => c.students.length === 0) 
+      .filter(c => c.students.length === 0)
       .map(c => {
         const reviewCount = c._count.reviews;
-        const avgRating = reviewCount > 0 
-          ? Number((c.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1)) 
+        const avgRating = reviewCount > 0
+          ? Number((c.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1))
           : 0;
 
         return {
@@ -231,11 +231,11 @@ export class ClassesService {
           currentStudents: c._count.students,
           price: c.price,
           coverImageUrl: c.coverImageUrl,
-          moduleCount: c._count.courseSections, 
+          moduleCount: c._count.courseSections,
           createdAt: c.createdAt,
           teacherAvatar: c.teacher?.avatarUrl,
-          avgRating,       
-          reviewCount      
+          avgRating,
+          reviewCount
         };
       });
   }
@@ -247,15 +247,15 @@ export class ClassesService {
         subject: true,
         teacher: { select: { fullName: true, avatarUrl: true } },
         _count: { select: { students: true, courseSections: true, reviews: true } },
-        reviews: { select: { rating: true } } 
+        reviews: { select: { rating: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
 
     return allClasses.map(c => {
       const reviewCount = c._count.reviews;
-      const avgRating = reviewCount > 0 
-        ? Number((c.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1)) 
+      const avgRating = reviewCount > 0
+        ? Number((c.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1))
         : 0;
 
       return {
@@ -266,12 +266,12 @@ export class ClassesService {
         maxStudents: c.maxStudents,
         currentStudents: c._count.students,
         price: c.price,
-        moduleCount: c._count.courseSections, 
+        moduleCount: c._count.courseSections,
         createdAt: c.createdAt,
         coverImageUrl: c.coverImageUrl,
         teacherAvatar: c.teacher?.avatarUrl,
-        avgRating,       
-        reviewCount      
+        avgRating,
+        reviewCount
       };
     });
   }
@@ -280,7 +280,7 @@ export class ClassesService {
   // LOGIC ĐĂNG KÝ MỚI: MIỄN PHÍ VÀ TRẢ PHÍ
   // ==============================================
   async joinClass(classId: string, studentId: string) {
-    const targetClass = await this.prisma.class.findUnique({ 
+    const targetClass = await this.prisma.class.findUnique({
       where: { id: classId },
       include: { _count: { select: { students: true } } }
     });
@@ -299,16 +299,16 @@ export class ClassesService {
         data: { classId, studentId }
       });
       return { message: 'Đã tham gia lớp học miễn phí thành công!', status: 'JOINED' };
-    } 
+    }
     else {
-      return { 
-        message: 'Khóa học này yêu cầu trả phí. Vui lòng tiến hành thanh toán.', 
+      return {
+        message: 'Khóa học này yêu cầu trả phí. Vui lòng tiến hành thanh toán.',
         status: 'PAYMENT_REQUIRED',
         price: targetClass.price,
       };
     }
   }
-  
+
   async getClassMembers(classId: string) {
     const classData = await this.prisma.class.findUnique({
       where: { id: classId },
@@ -330,7 +330,7 @@ export class ClassesService {
     return [classData.teacher, ...students];
   }
 
- 
+
   async getStudentGradesInClass(classId: string, studentId: string) {
     const sections = await this.prisma.courseSection.findMany({
       where: { classId: classId },
@@ -344,9 +344,9 @@ export class ClassesService {
     });
 
     const activities = sections.flatMap(section => section.activities);
-    let totalAssignmentScore = 0; let gradedAssignmentCount = 0; 
+    let totalAssignmentScore = 0; let gradedAssignmentCount = 0;
     let totalExamScore = 0; let gradedExamCount = 0; // Sửa biến
-    let submittedCount = 0; 
+    let submittedCount = 0;
 
     const gradesList = activities.map((act: any) => {
       const userSubmission = act.submissions[0];
@@ -357,23 +357,23 @@ export class ClassesService {
       if (userSubmission) submittedCount++;
 
       if (score !== null) {
-        if (act.type === 'ASSIGNMENT') { totalAssignmentScore += score; gradedAssignmentCount++; } 
+        if (act.type === 'ASSIGNMENT') { totalAssignmentScore += score; gradedAssignmentCount++; }
         else if (act.type === 'EXAM') { totalExamScore += score; gradedExamCount++; } // Sửa ở đây
       }
-      
+
       return { activityId: act.id, activityTitle: act.title, activityType: act.type, score: score, weight: weight, hasFeedback: !!userSubmission?.feedback };
     });
 
     const avgAssignment = gradedAssignmentCount > 0 ? (totalAssignmentScore / gradedAssignmentCount) : 0;
     const avgExam = gradedExamCount > 0 ? (totalExamScore / gradedExamCount) : 0; // Sửa biến
-    
+
     let finalScore = 0;
     const hasAnyGrade = gradedAssignmentCount > 0 || gradedExamCount > 0;
 
     if (hasAnyGrade) {
       const currentWeight = (gradedAssignmentCount > 0 ? 0.3 : 0) + (gradedExamCount > 0 ? 0.7 : 0);
       const weightedScore = (avgAssignment * 0.3) + (avgExam * 0.7);
-      finalScore = Math.round((weightedScore / currentWeight) * 100) / 100; 
+      finalScore = Math.round((weightedScore / currentWeight) * 100) / 100;
     }
 
     let letterGrade = 'F'; let statusColor = '#ef4444'; let statusText = 'Kém/Trượt';
@@ -388,7 +388,7 @@ export class ClassesService {
       summary: hasAnyGrade ? {
         finalScore, letterGrade, statusText, statusColor,
         avgAssignment: gradedAssignmentCount > 0 ? Math.round(avgAssignment * 100) / 100 : '--',
-        avgExam: gradedExamCount > 0 ? Math.round(avgExam * 100) / 100 : '--' 
+        avgExam: gradedExamCount > 0 ? Math.round(avgExam * 100) / 100 : '--'
       } : null
     };
   }
@@ -396,15 +396,15 @@ export class ClassesService {
   async getAllTeacherReviews(teacherId: string) {
     const reviews = await this.prisma.classReview.findMany({
       where: { class: { teacherId: teacherId } },
-      include: { 
+      include: {
         student: { select: { fullName: true, avatarUrl: true } },
         class: { select: { id: true, classCode: true, subject: { select: { name: true } } } }
       },
       orderBy: { updatedAt: 'desc' }
     });
 
-    const avgRating = reviews.length > 0 
-      ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length 
+    const avgRating = reviews.length > 0
+      ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
       : 0;
 
     return { reviews, avgRating: avgRating.toFixed(1), total: reviews.length };
@@ -544,7 +544,7 @@ export class ClassesService {
           });
           scoreValue = submission?.score ? Number(submission.score) : null;
           if (scoreValue !== null) { sumAssignment += scoreValue; countAssignment++; }
-        } 
+        }
         else if (act.type === 'EXAM') { // Sửa ở đây
           const courseAct = await this.prisma.courseActivity.findUnique({
             where: { id: act.id }, select: { examId: true }
@@ -563,7 +563,7 @@ export class ClassesService {
       const avgAssignment = countAssignment > 0 ? (sumAssignment / countAssignment) : null;
       const avgExam = countExam > 0 ? (sumExam / countExam) : null; // Sửa biến
       let finalScore: number | null = null;
-      
+
       if (avgAssignment !== null && avgExam !== null) finalScore = (avgAssignment * 0.3) + (avgExam * 0.7);
       else if (avgAssignment !== null) finalScore = avgAssignment;
       else if (avgExam !== null) finalScore = avgExam;
@@ -582,7 +582,7 @@ export class ClassesService {
         fullName: cs.student.fullName,
         email: cs.student.email,
         scores,
-        finalScore, 
+        finalScore,
         letterGrade
       };
     }));
@@ -617,7 +617,7 @@ export class ClassesService {
 
     const updateData: any = { maxStudents };
     if (!isNaN(price) && price >= 0) {
-      updateData.price = price; 
+      updateData.price = price;
     }
 
     if (file) updateData.coverImageUrl = `/uploads/courses/${file.filename}`;
@@ -643,29 +643,29 @@ export class ClassesService {
             { subject: { name: { contains: query, mode: 'insensitive' } } }
           ]
         },
-        select: { 
-          id: true, 
-          classCode: true, 
+        select: {
+          id: true,
+          classCode: true,
           coverImageUrl: true,
-          subject: { 
-            select: { name: true } 
+          subject: {
+            select: { name: true }
           },
           students: {
             where: { studentId: userId },
-            select: { classId: true } 
+            select: { classId: true }
           }
         },
-        take: 5 
+        take: 5
       });
 
-      return classes.map(c => ({ 
-        id: c.id, 
-        name: c.subject?.name || c.classCode, 
+      return classes.map(c => ({
+        id: c.id,
+        name: c.subject?.name || c.classCode,
         code: c.classCode,
         coverImageUrl: c.coverImageUrl,
-        isJoined: c.students.length > 0 
+        isJoined: c.students.length > 0
       }));
-    } 
+    }
     else {
       const classes = await this.prisma.class.findMany({
         where: {
@@ -675,23 +675,23 @@ export class ClassesService {
             { subject: { name: { contains: query, mode: 'insensitive' } } }
           ]
         },
-        select: { 
-          id: true, 
-          classCode: true, 
+        select: {
+          id: true,
+          classCode: true,
           coverImageUrl: true,
-          subject: { 
-            select: { name: true } 
+          subject: {
+            select: { name: true }
           }
         },
-        take: 5 
+        take: 5
       });
 
-      return classes.map(c => ({ 
-        id: c.id, 
-        name: c.subject?.name || c.classCode, 
+      return classes.map(c => ({
+        id: c.id,
+        name: c.subject?.name || c.classCode,
         code: c.classCode,
         coverImageUrl: c.coverImageUrl,
-        isJoined: false 
+        isJoined: false
       }));
     }
   }
@@ -709,14 +709,14 @@ export class ClassesService {
 
       // 2. Lấy bài thi (Exam) chưa chấm xong (Trạng thái SUBMITTED)
       const exams = await this.prisma.examSession.findMany({
-        where: { 
-          status: 'SUBMITTED', 
-          exam: { classId: classId } 
+        where: {
+          status: 'SUBMITTED',
+          exam: { classId: classId }
         },
         include: {
           student: { select: { id: true, fullName: true, email: true } },
-          exam: { 
-            include: { courseActivity: { select: { id: true, title: true } } } 
+          exam: {
+            include: { courseActivity: { select: { id: true, title: true } } }
           }
         }
       });
@@ -754,7 +754,7 @@ export class ClassesService {
 
   async getTeacherProfile(teacherId: string) {
     const teacher = await this.prisma.user.findUnique({
-      where: { id: teacherId }, 
+      where: { id: teacherId },
       select: { id: true, fullName: true, email: true, avatarUrl: true }
     });
 
@@ -774,8 +774,8 @@ export class ClassesService {
 
     const formattedClasses = classes.map(c => {
       const reviewCount = c._count.reviews;
-      const avgRating = reviewCount > 0 
-        ? Number((c.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1)) 
+      const avgRating = reviewCount > 0
+        ? Number((c.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1))
         : 0;
 
       return {
@@ -786,7 +786,7 @@ export class ClassesService {
         maxStudents: c.maxStudents,
         currentStudents: c._count.students,
         price: c.price,
-        moduleCount: c._count.courseSections, 
+        moduleCount: c._count.courseSections,
         coverImageUrl: c.coverImageUrl,
         teacherAvatar: teacher.avatarUrl,
         avgRating,
@@ -798,5 +798,61 @@ export class ClassesService {
       teacher,
       courses: formattedClasses
     };
+  }
+  async getAllClassesForAdmin() {
+    return this.prisma.class.findMany({
+      include: {
+        subject: true,
+        teacher: { select: { fullName: true, email: true } },
+        _count: { select: { students: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async deleteClass(classId: string) {
+    // 1. Lấy thông tin lớp và giáo viên trước khi xóa để lấy email
+    const classObj = await this.prisma.class.findUnique({
+      where: { id: classId },
+      include: {
+        teacher: { select: { email: true, fullName: true } },
+        subject: { select: { name: true } }
+      }
+    });
+
+    if (!classObj) throw new NotFoundException('Không tìm thấy lớp học');
+
+    return this.prisma.$transaction(async (tx) => {
+      // 2. Xóa các dữ liệu liên quan không có cascade trong schema
+      await tx.payment.deleteMany({ where: { classId } });
+
+      // 3. Xóa lớp học
+      const deletedClass = await tx.class.delete({ where: { id: classId } });
+
+      // 4. Gửi email thông báo cho giảng viên (Gửi sau khi xóa thành công)
+      if (classObj.teacher?.email) {
+        this.mailService.sendMail(
+          classObj.teacher.email,
+          `[EduExam] Thông báo xóa lớp học ${classObj.classCode}`,
+          `
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+              <h2 style="color: #dc2626;">Chào Giảng viên ${classObj.teacher.fullName},</h2>
+              <p>Hệ thống thông báo rằng lớp học của bạn đã bị Quản trị viên xóa khỏi nền tảng EduExam do vi phạm các điều khoản dịch vụ của hệ thống.</p>
+              <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin: 20px 0;">
+                <p style="margin: 5px 0;"><b>Mã lớp:</b> ${classObj.classCode}</p>
+                <p style="margin: 5px 0;"><b>Môn học:</b> ${classObj.subject.name}</p>
+                <p style="margin: 5px 0;"><b>Thời gian thực hiện:</b> ${new Date().toLocaleString('vi-VN')}</p>
+              </div>
+              <p>Mọi dữ liệu bài giảng, bài tập, ngân hàng câu hỏi và điểm số liên quan đến lớp học này đã bị gỡ bỏ.</p>
+              <p>Nếu bạn cho rằng đây là một sự nhầm lẫn hoặc cần hỗ trợ, vui lòng liên hệ trực tiếp với bộ phận Quản trị hệ thống.</p>
+              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+              <p style="font-size: 12px; color: #888;">Đây là email tự động từ hệ thống EduExam, vui lòng không phản hồi email này.</p>
+            </div>
+          `
+        ).catch(err => console.error('Lỗi gửi mail khi admin xóa lớp:', err.message));
+      }
+
+      return deletedClass;
+    });
   }
 }

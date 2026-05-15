@@ -25,6 +25,7 @@ import StudentExamRoom from './pages/StudentExamRoom/StudentExamRoom';
 import TeacherExamGrading from './pages/TeacherExamGrading/TeacherExamGrading';
 import TeacherExamGradingDetail from './pages/TeacherExamGrading/TeacherExamGradingDetail';
 import StudentExamReview from './pages/StudentExamReview/StudentExamReview';
+import StudentSchedule from './pages/Dashboard/StudentSchedule';
 import TeacherProctoringDashboard from './pages/TeacherActivityDetail/TeacherProctoringDashboard';
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
 import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
@@ -32,6 +33,8 @@ import AdminUserList from './pages/AdminUserList/AdminUserList';
 import AdminSubjectList from './pages/AdminSubjectList/AdminSubjectList';
 import AdminProctoring from './pages/AdminProctoring/AdminProctoring';
 import AdminSettings from './pages/AdminSettings/AdminSettings';
+import AdminFaceApproval from './pages/AdminFaceApproval/AdminFaceApproval';
+import AdminClassList from './pages/AdminClassList/AdminClassList';
 function App() {
   return (
     <BrowserRouter>
@@ -42,6 +45,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/student-schedule" element={<StudentSchedule />} />
           <Route path="/course/:id" element={<CourseDetailPage />} />
           <Route path="/activity/:id" element={<ActivityDetailPage />} />
           <Route path="/teacher/class/:classId" element={<TeacherCourseDetail />} />
@@ -82,7 +86,9 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users/teachers" element={<AdminUserList />} />
           <Route path="/admin/users/students" element={<AdminUserList />} />
+          <Route path="/admin/users/face-approval" element={<AdminFaceApproval />} />
           <Route path="/admin/subjects" element={<AdminSubjectList />} />
+          <Route path="/admin/classes" element={<AdminClassList />} />
           <Route path="/admin/proctoring" element={<AdminProctoring />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
         </Route>

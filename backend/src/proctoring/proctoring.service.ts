@@ -28,7 +28,7 @@ export class ProctoringService {
     const sessions = await this.prisma.examSession.findMany({
       where: { examId },
       include: {
-        student: { select: { id: true, fullName: true, email: true } },
+        student: { select: { id: true, fullName: true, email: true, avatarUrl: true } },
         violationLogs: { orderBy: { timestamp: 'asc' } },
       },
     });
@@ -81,7 +81,7 @@ export class ProctoringService {
   }
 
   async getGlobalViolationStats() {
-    const [totalViolations, activeSessions, totalStudentsToday] = await Promise.all([
+    const [totalViolations, activeSessions, totalStudentsToday, totalAIExams, totalStudents] = await Promise.all([
       this.prisma.violationLog.count(),
       this.prisma.examSession.count({ where: { status: 'IN_PROGRESS' } }),
       this.prisma.examSession.count({ 
@@ -89,6 +89,8 @@ export class ProctoringService {
           startTime: { gte: new Date(new Date().setHours(0,0,0,0)) } 
         } 
       }),
+      this.prisma.exam.count({ where: { requireCamera: true } }),
+      this.prisma.user.count({ where: { role: 'STUDENT' } }),
     ]);
 
     const violationsByTypeRaw = await this.prisma.violationLog.groupBy({
@@ -100,6 +102,8 @@ export class ProctoringService {
       totalViolations,
       activeSessions,
       totalStudentsToday,
+      totalAIExams,
+      totalStudents,
       violationsByType: violationsByTypeRaw.reduce((acc: any, v) => {
         acc[v.type] = v._count.id;
         return acc;

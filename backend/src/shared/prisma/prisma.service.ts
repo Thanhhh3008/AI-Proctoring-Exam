@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     await this.$connect();
-    console.log('🚀 Đã kết nối PostgreSQL thông qua Prisma ORM! http://localhost:5173/');
+    console.log(' Đã kết nối PostgreSQL thông qua Prisma ORM! http://localhost:5173/');
   }
 
   async onModuleDestroy() {

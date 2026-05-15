@@ -106,19 +106,20 @@ const AdminProctoring: React.FC = () => {
         <Col xs={24} sm={8}>
           <Card variant="borderless">
             <Statistic 
-              title="Kỳ thi đang diễn ra" 
-              value={globalStats?.activeSessions || 0} 
+              title="Tổng số kỳ thi sử dụng AI" 
+              value={globalStats?.totalAIExams || 0} 
               prefix={<MonitorOutlined style={{ color: '#1677ff' }} />} 
-              suffix="Ca thi"
+              suffix="Kỳ thi"
             />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card variant="borderless">
             <Statistic 
-              title="Sinh viên thi hôm nay" 
-              value={globalStats?.totalStudentsToday || 0} 
+              title="Tổng số người học" 
+              value={globalStats?.totalStudents || 0} 
               prefix={<UserOutlined style={{ color: '#52c41a' }} />} 
+              suffix="Thành viên"
             />
           </Card>
         </Col>

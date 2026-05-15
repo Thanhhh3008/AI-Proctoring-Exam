@@ -42,6 +42,21 @@ export class ProctoringController {
   }
 
   /**
+   * Lưu ảnh tham chiếu (reference photo) cho một session sau khi chụp
+   * POST /proctoring/session/:sessionId/reference-photo
+   */
+  @Post('session/:sessionId/reference-photo')
+  @HttpCode(HttpStatus.OK)
+  async saveReferencePhoto(
+    @Param('sessionId') sessionId: string,
+    @Body() body: { photoUrl: string }
+  ) {
+    if (!body.photoUrl) return { success: false };
+    await this.proctoringService.saveReferencePhoto(sessionId, body.photoUrl);
+    return { success: true };
+  }
+
+  /**
    * Lấy thống kê vi phạm của toàn bộ kỳ thi (cho giảng viên)
    * GET /proctoring/exam/:examId/stats
    */

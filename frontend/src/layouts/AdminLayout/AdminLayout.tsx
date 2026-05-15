@@ -12,6 +12,7 @@ import {
   LogoutOutlined,
   AuditOutlined,
   TeamOutlined,
+  HomeOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import './AdminLayout.css';
@@ -55,12 +56,18 @@ const AdminLayout: React.FC = () => {
       children: [
         { key: '/admin/users/teachers', label: 'Giáo viên' },
         { key: '/admin/users/students', label: 'Sinh viên' },
+        { key: '/admin/users/face-approval', label: 'Duyệt ảnh sinh viên' },
       ],
     },
     {
       key: '/admin/subjects',
       icon: <BookOutlined />,
       label: 'Quản lý môn học',
+    },
+    {
+      key: '/admin/classes',
+      icon: <AuditOutlined />,
+      label: 'Quản lý lớp học',
     },
     {
       key: '/admin/proctoring',
@@ -85,6 +92,11 @@ const AdminLayout: React.FC = () => {
       icon: <UserOutlined />,
     },
     {
+      key: 'home',
+      label: 'Về trang chủ',
+      icon: <HomeOutlined />,
+    },
+    {
       type: 'divider',
     },
     {
@@ -102,6 +114,8 @@ const AdminLayout: React.FC = () => {
       navigate('/login');
     } else if (key === 'profile') {
       navigate('/profile');
+    } else if (key === 'home') {
+      navigate('/');
     }
   };
 
@@ -132,9 +146,17 @@ const AdminLayout: React.FC = () => {
             onClick={() => setCollapsed(!collapsed)}
             style={{ fontSize: '16px', width: 64, height: 64 }}
           />
-          <div className="header-right">
+          <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <Button 
+              type="text" 
+              icon={<HomeOutlined />} 
+              onClick={() => navigate('/')}
+              style={{ fontSize: '14px', display: 'flex', alignItems: 'center' }}
+            >
+              Về trang chủ
+            </Button>
             <Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }} placement="bottomRight">
-              <Space className="user-profile-trigger">
+              <Space className="user-profile-trigger" style={{ cursor: 'pointer' }}>
                 <Avatar src={resolveImageUrl(adminInfo.avatarUrl)} icon={<UserOutlined />} />
                 <span className="user-name">{adminInfo.fullName}</span>
               </Space>

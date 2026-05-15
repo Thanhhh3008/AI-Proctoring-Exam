@@ -414,6 +414,19 @@ export default function ActivityDetailPage() {
                 )}
               </div>
 
+              {/* HIỂN THỊ NHẬN XÉT CỦA GIÁO VIÊN (NẾU CÓ) */}
+              {examData?.teacherComment && (
+                <div style={{ padding: '15px 24px', backgroundColor: '#fffbeb', borderTop: '1px solid #fef3c7' }}>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                    <FaInfoCircle color="#d97706" style={{ marginTop: '3px' }} />
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#92400e', marginBottom: '4px' }}>Nhận xét từ Giảng viên:</div>
+                      <div style={{ fontSize: '14px', color: '#78350f', fontStyle: 'italic' }}>"{examData.teacherComment}"</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         )}

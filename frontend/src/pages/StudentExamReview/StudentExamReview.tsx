@@ -240,6 +240,14 @@ export default function StudentExamReview() {
               <div className="gr-score-of">/ 10 điểm</div>
             </div>
 
+            {/* Nhận xét của giảng viên */}
+            {session.teacherComment && (
+              <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '6px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#92400e', marginBottom: '4px', textTransform: 'uppercase' }}>Nhận xét từ Giảng viên:</div>
+                <div style={{ fontSize: '13px', color: '#78350f', fontStyle: 'italic' }}>"{session.teacherComment}"</div>
+              </div>
+            )}
+
             {/* Stats */}
             <div className="gr-session-stats">
               <div className="gr-session-stat">

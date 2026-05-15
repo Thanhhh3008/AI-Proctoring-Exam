@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
-import { FaPlay, FaExclamationTriangle, FaDesktop, FaClock, FaSpinner, FaCheckCircle, FaListOl, FaInfoCircle } from 'react-icons/fa';
+import { FaPlay, FaExclamationTriangle, FaDesktop, FaClock, FaSpinner, FaCheckCircle, FaListOl, FaInfoCircle, FaUser } from 'react-icons/fa';
+import { notification, message } from 'antd';
 import './StudentExamRoom.css';
 
 // ===================== PROCTORING IMPORTS =====================
 import { ProctoringEngine } from '../../proctoring/ProctoringEngine';
 import type { ProctoringStatus, ViolationEvent } from '../../proctoring/types';
-import ReferencePhotoCapture from './ReferencePhotoCapture';
 import ProctoringOverlay from './ProctoringOverlay';
 
 export default function StudentExamRoom() {
@@ -20,6 +20,8 @@ export default function StudentExamRoom() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [studentName, setStudentName] = useState<string>('Sinh viên');
+  const [studentFaceUrl, setStudentFaceUrl] = useState<string | null>(null);
+  const [studentFaceVerified, setStudentFaceVerified] = useState<boolean>(false);
 
   // Trạng thái
   const [loading, setLoading] = useState(true);
@@ -28,13 +30,11 @@ export default function StudentExamRoom() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isFinishedRef = useRef(false); // Cờ đánh dấu đã nộp bài xong
 
-  // Trạng thái Strict Mode
+  // Trạng thái Vi phạm
   const [violationLogs, setViolationLogs] = useState<string[]>([]);
-  const [isWarningFullscreen, setIsWarningFullscreen] = useState(false);
 
   // ===================== PROCTORING STATES =====================
-  const [showPhotoCapture, setShowPhotoCapture] = useState(false);
-  const [captureErrorMsg, setCaptureErrorMsg] = useState('');
+
   const [proctoringStatus, setProctoringStatus] = useState<ProctoringStatus>({
     isActive: false, faceDetected: false, faceCount: 0,
     identityVerified: true, headPose: { yaw: 0, pitch: 0, roll: 0 },
@@ -78,15 +78,19 @@ export default function StudentExamRoom() {
           } else if (resUser.data && resUser.data.name) {
             setStudentName(resUser.data.name);
           }
+          if (resUser.data) {
+            setStudentFaceUrl(resUser.data.baseFaceUrl || null);
+            setStudentFaceVerified(resUser.data.facePhotoVerified || false);
+          }
         } catch (e) {
-          console.warn("Không lấy được tên sinh viên", e);
+          console.warn("Không lấy được thông tin sinh viên", e);
         }
 
         const resExam = await axiosClient.get(`/exams/${examId}`);
         setExamInfo(resExam.data);
 
       } catch (error: any) {
-        alert("Không thể tải thông tin kỳ thi.");
+        notification.error({ message: 'Lỗi', description: 'Không thể tải thông tin kỳ thi.' });
         navigate(-1);
       } finally {
         setLoading(false);
@@ -96,35 +100,27 @@ export default function StudentExamRoom() {
   }, [examId, navigate]);
 
   // ========================================================
-  // 2. LOGIC BẮT SỰ KIỆN STRICT MODE
+  // 2. LUÔN LUÔN GIÁM SÁT CHUYỂN TAB (không phụ thuộc strictMode)
   // ========================================================
   useEffect(() => {
-    if (!isStarted || !examInfo?.strictMode) return;
+    if (!isStarted) return;
 
     const handleVisibilityChange = () => {
-      // Chỉ cảnh báo nếu chưa nộp bài
       if (document.hidden && !isFinishedRef.current) {
-        // Ghi nhận vi phạm vào AI Engine để báo về server/giáo viên
         proctoringEngineRef.current?.emitViolation('TAB_SWITCH');
-        alert("CẢNH BÁO: Bạn vừa rời khỏi màn hình bài thi. Hành vi đã được ghi lại!");
+        notification.error({
+          message: 'CẢNH BÁO VI PHẠM',
+          description: 'Bạn vừa rời khỏi màn hình bài thi. Hành vi này đã được ghi lại vào hệ thống giám sát!',
+          placement: 'top',
+          duration: 5,
+        });
       }
     };
 
-    const handleFullscreenChange = () => {
-      // Chỉ hiện màn hình đỏ nếu chưa nộp bài
-      if (!document.fullscreenElement && !isFinishedRef.current) {
-        setIsWarningFullscreen(true);
-        // Ghi nhận vi phạm vào AI Engine
-        proctoringEngineRef.current?.emitViolation('FULLSCREEN_EXITED');
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [isStarted, examInfo]);
 
   // ========================================================
@@ -165,46 +161,49 @@ export default function StudentExamRoom() {
         console.warn('[Proctoring] Một số model không tải được:', result.errors);
       }
     } catch (err: any) {
-      // Lỗi nghiêm trọng – vẫn cho tiếp tục nhưng ghi log
+      // Lỗi khởi tạo – vẫn cho tiếp tục nhưng ghi log
       console.error('[Proctoring] Init error (non-blocking):', err);
     } finally {
       setProctoringLoading(false);
     }
   };
 
-  // PROCTORING: Xử lý sau khi chụp ảnh xác thực
-  const handleReferencePhotoCaptured = async (imageData: string) => {
-    setCaptureErrorMsg('');
+  // PROCTORING: Tải ảnh khuôn mặt đã xác nhận từ server và đăng ký vào engine
+  const loadVerifiedFacePhoto = async (): Promise<boolean> => {
     try {
-      if (proctoringEngineRef.current) {
-        setProctoringLoading(true);
-        try {
-          const img = new Image();
-          await new Promise((resolve, reject) => {
-            img.onload = resolve;
-            img.onerror = () => reject(new Error('Không thể tải ảnh đã chụp'));
-            img.src = imageData;
-          });
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const res = await axiosClient.get('/users/me');
+      const { baseFaceUrl, facePhotoVerified } = res.data;
 
-          const ok = await proctoringEngineRef.current.registerFace(img);
-          if (!ok) {
-            setCaptureErrorMsg('Không phát hiện khuôn mặt trong ảnh. Vui lòng chụp lại rõ nét, đủ ánh sáng và không đeo khẩu trang.');
-            setProctoringLoading(false);
-            return;
-          }
-        } catch (faceErr: any) {
-          console.warn('[Proctoring] registerFace failed (non-blocking):', faceErr);
-        } finally {
-          setProctoringLoading(false);
-        }
+      if (!facePhotoVerified || !baseFaceUrl) {
+        return false; // Chưa có ảnh hợp lệ
       }
 
-      setShowPhotoCapture(false);
-      await performStartExam();
-    } catch (err: any) {
-      console.error('[Proctoring] Registration error:', err);
-      setProctoringLoading(false);
-      setCaptureErrorMsg('Lỗi hệ thống khi xác thực khuôn mặt: ' + (err.message || 'Vui lòng thử lại'));
+      if (!proctoringEngineRef.current) return false;
+
+      const fullUrl = baseFaceUrl.startsWith('http') ? baseFaceUrl : `${API_BASE}${baseFaceUrl}`;
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Không tải được ảnh xác thực'));
+        img.src = fullUrl;
+      });
+
+      const ok = await proctoringEngineRef.current.registerFace(img);
+      if (!ok) {
+        console.warn('[Proctoring] Không nhận diện được khuôn mặt trong ảnh đã duyệt');
+        return false;
+      }
+
+      // Lưu ảnh tham chiếu để hiển thị cho giảng viên so sánh
+      (proctoringEngineRef.current as any)._referencePhotoUrl = fullUrl;
+      console.log('[Proctoring] Đã tải ảnh xác thực từ server:', fullUrl);
+      return true;
+    } catch (err) {
+      console.warn('[Proctoring] Lỗi tải ảnh xác thực (non-blocking):', err);
+      return false;
     }
   };
 
@@ -230,41 +229,40 @@ export default function StudentExamRoom() {
   };
 
   // ========================================================
-  // 4. BẮT ĐẦU HOẶC TIẾP TỤC BÀI THI
+  // 4. BẮt ĐẦU HOẶC TIẾ TỤC BÀI THI
   // ========================================================
   const startExam = async () => {
-    // Nếu có một trong các tính năng giám sát (Camera hoặc Strict Mode) -> Khởi tạo Engine
-    if (examInfo?.requireCamera || examInfo?.strictMode) {
-      await initProctoring();
-    }
+    // Luôn khởi tạo Proctoring Engine
+    await initProctoring();
 
-    // Nếu bật camera → hiện màn chụp ảnh trước khi vào Fullscreen
     if (examInfo?.requireCamera) {
-      setShowPhotoCapture(true);
-      return;
-    }
+      // Kiểm tra ảnh xác thực từ server
+      setProctoringLoading(true);
+      const res = await axiosClient.get('/users/me').catch(() => null);
+      const { baseFaceUrl, facePhotoVerified } = res?.data || {};
+      setProctoringLoading(false);
 
-    // Nếu không cần camera, vào luôn Fullscreen và Start
-    if (examInfo?.strictMode) {
-      try {
-        await document.documentElement.requestFullscreen();
-      } catch (err) {
-        alert("Trình duyệt từ chối Toàn màn hình. Vui lòng thử lại!");
+      if (!baseFaceUrl || !facePhotoVerified) {
+        notification.error({
+          message: 'Chưa có ảnh xác thực khuôn mặt',
+          description: (
+            <>
+              Bạn cần đăng ký ảnh chân dung và được Admin xác nhận trước khi tham gia kỳ thi có giám sát AI.
+              Vui lòng đến trang <strong>Hồ sơ cá nhân</strong> → <strong>Ảnh xác thực khuôn mặt</strong>.
+            </>
+          ),
+          duration: 8,
+          placement: 'top',
+        });
+
         return;
       }
     }
+
     await performStartExam();
   };
 
   const performStartExam = async () => {
-    // Nếu Strict Mode mà chưa ở Fullscreen (do vừa cấp quyền Cam xong), bật Fullscreen ngay lúc này
-    if (examInfo?.strictMode && !document.fullscreenElement) {
-      try {
-        await document.documentElement.requestFullscreen();
-      } catch (err) {
-        console.warn('Không thể vào Fullscreen lúc này:', err);
-      }
-    }
 
     setLoading(true);
 
@@ -302,29 +300,34 @@ export default function StudentExamRoom() {
 
       setIsStarted(true);
 
-      // Kết nối WebSocket để ghi nhận vi phạm (kể cả khi không có camera nhưng có strict mode)
-      if (res.data.sessionId && (serverExamInfo.requireCamera || serverExamInfo.strictMode)) {
+      // Luôn kết nối WebSocket để có thể báo vi phạm (kể cả khi không bật Camera/Strict Mode)
+      if (res.data.sessionId) {
         if (serverExamInfo.requireCamera) {
+          // Tải ảnh xác nhận từ server trước khi khởi động engine
+          await loadVerifiedFacePhoto();
           await startProctoringMonitor(res.data.sessionId);
+          // Lưu ảnh tham chiếu vào DB (URL từ baseFaceUrl đã ưu được trong ref)
+          const refUrl = (proctoringEngineRef.current as any)?._referencePhotoUrl;
+          if (refUrl) {
+            try {
+              await axiosClient.post(`/proctoring/session/${res.data.sessionId}/reference-photo`, { photoUrl: refUrl });
+            } catch (e) {
+              console.warn('[Proctoring] Không lưu được reference photo:', e);
+            }
+          }
         } else {
-          // Chỉ kết nối socket để báo lỗi tab/fullscreen
+          // Không có camera → chỉ kết nối socket để báo tab switch và các vi phạm khác
           proctoringEngineRef.current?.connectWebSocket(res.data.sessionId, examId || '', studentName);
         }
       }
     } catch (error: any) {
-      alert(error.response?.data?.message || "Lỗi khi khởi tạo đề thi!");
+      notification.warning({
+        message: 'Không thể bắt đầu',
+        description: error.response?.data?.message || "Lỗi khi khởi tạo đề thi!"
+      });
       if (document.fullscreenElement) document.exitFullscreen();
     } finally {
       setLoading(false);
-    }
-  };
-
-  const resumeFullscreen = async () => {
-    try {
-      await document.documentElement.requestFullscreen();
-      setIsWarningFullscreen(false);
-    } catch (err) {
-      alert("Phải cấp quyền toàn màn hình để làm bài!");
     }
   };
 
@@ -382,8 +385,6 @@ export default function StudentExamRoom() {
 
       isFinishedRef.current = true;
 
-      if (document.fullscreenElement) await document.exitFullscreen();
-
       let message = "Nộp bài thành công!";
       if (res.data && res.data.message) {
         message = res.data.message;
@@ -397,7 +398,7 @@ export default function StudentExamRoom() {
       });
 
     } catch (error) {
-      alert("Lỗi khi nộp bài!");
+      message.error("Lỗi khi nộp bài!");
       setIsSubmitting(false);
     }
   };
@@ -447,14 +448,7 @@ export default function StudentExamRoom() {
       onCut={preventCheating}
       onContextMenu={preventCheating}
     >
-      {/* ================= CHỤP ẢNH XÁC THỰC DANH TÍNH ================= */}
-      {showPhotoCapture && (
-        <ReferencePhotoCapture
-          onCapture={handleReferencePhotoCaptured}
-          externalErrorMsg={captureErrorMsg}
-          onErrorMsgRead={() => setCaptureErrorMsg('')}
-        />
-      )}
+      {/* Chụp ảnh xác thực đã được thay thế bằng ảnh hồ sơ được Admin xác nhận */}
 
       {/* ================= PROCTORING LOADING ================= */}
       {proctoringLoading && (
@@ -494,20 +488,6 @@ export default function StudentExamRoom() {
         </div>
       )}
 
-      {/* CẢNH BÁO VI PHẠM FULLSCREEN */}
-      {isWarningFullscreen && (
-        <div className="fullscreen-warning-overlay">
-          <FaExclamationTriangle size={60} color="#dc3545" style={{ marginBottom: '20px' }} />
-          <h2 style={{ fontSize: '28px', margin: '0 0 10px 0' }}>CẢNH BÁO VI PHẠM!</h2>
-          <p style={{ fontSize: '18px', maxWidth: '600px', lineHeight: '1.5' }}>
-            Bạn đã thoát khỏi chế độ Toàn màn hình. Hành động đã bị ghi lại!
-          </p>
-          <button className="btn-resume" onClick={resumeFullscreen}>
-            QUAY LẠI BÀI THI
-          </button>
-        </div>
-      )}
-
       {/* ================= LOBBY ================= */}
       {!isStarted && (
         <div className="exam-lobby">
@@ -523,10 +503,7 @@ export default function StudentExamRoom() {
               <div className="lobby-rules-header"><FaExclamationTriangle size={18} /> NỘI QUY PHÒNG THI</div>
               <ul className="lobby-rules-list">
                 {examInfo?.strictMode && (
-                  <>
-                    <li>Bài thi yêu cầu chế độ <strong>Toàn màn hình (Full-screen)</strong>.</li>
-                    <li>Hệ thống <strong>chặn Copy-Paste</strong> và <strong>ghi lại toàn bộ lịch sử chuyển tab hoặc thu nhỏ trình duyệt</strong>.</li>
-                  </>
+                  <li>Hệ thống <strong>chặn Copy-Paste</strong> và <strong>ghi lại toàn bộ lịch sử chuyển tab hoặc thu nhỏ trình duyệt</strong>.</li>
                 )}
                 {examInfo?.requireCamera && (
                   <li>Hệ thống giám sát qua <strong>Webcam AI</strong>. Yêu cầu sinh viên giữ khuôn mặt luôn nằm trong khung hình.</li>
@@ -535,7 +512,35 @@ export default function StudentExamRoom() {
               </ul>
             </div>
 
-            <button className="btn-start-exam" onClick={startExam}>
+            {examInfo?.requireCamera && (
+              <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <div style={{ flexShrink: 0 }}>
+                  {studentFaceUrl ? (
+                    <img
+                      src={studentFaceUrl.startsWith('http') ? studentFaceUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}${studentFaceUrl}`}
+                      alt="Ảnh xác thực"
+                      style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: studentFaceVerified ? '3px solid #10b981' : '3px solid #f59e0b' }}
+                    />
+                  ) : (
+                    <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '3px solid #ef4444' }}>
+                      <FaUser size={24} color="#94a3b8" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', color: '#1e293b' }}>Ảnh xác thực khuôn mặt</h4>
+                  {studentFaceUrl && studentFaceVerified ? (
+                    <div style={{ fontSize: '13px', color: '#059669', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}><FaCheckCircle size={14} /> Đã xác nhận & sẵn sàng</div>
+                  ) : studentFaceUrl && !studentFaceVerified ? (
+                    <div style={{ fontSize: '13px', color: '#d97706', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}><FaClock size={14} /> Đang chờ duyệt (Chưa thể vào thi)</div>
+                  ) : (
+                    <div style={{ fontSize: '13px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}><FaExclamationTriangle size={14} /> Chưa đăng ký (Chưa thể vào thi)</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <button className="btn-start-exam" onClick={startExam} style={{ marginTop: '25px' }}>
               <FaPlay size={14} style={{ marginTop: '2px' }} /> TÔI ĐÃ HIỂU, BẮT ĐẦU LÀM BÀI
             </button>
           </div>

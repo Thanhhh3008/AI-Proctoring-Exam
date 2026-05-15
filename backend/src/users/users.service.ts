@@ -51,7 +51,9 @@ async getUserInfo(userId: string) {
       email: true, 
       fullName: true, 
       avatarUrl: true, 
-      role: true 
+      role: true,
+      baseFaceUrl: true,
+      facePhotoVerified: true,
     }
   });
 
@@ -59,14 +61,44 @@ async getUserInfo(userId: string) {
   return user;
 }
 
+  // Cập nhật ảnh chân dung - đặt lại trạng thái chờ duyệt
+  async updateFacePhoto(userId: string, facePhotoUrl: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        baseFaceUrl: facePhotoUrl,
+        facePhotoVerified: false, // Đặt lại trạng thái chờ admin xác nhận
+      },
+      select: { id: true, baseFaceUrl: true, facePhotoVerified: true },
+    });
+  }
+
+  // Admin xác nhận hoặc từ chối ảnh chân dung
+  async approveFacePhoto(userId: string, approved: boolean) {
+    const data: any = { facePhotoVerified: approved };
+    if (!approved) {
+      data.baseFaceUrl = null; // Xoá ảnh nếu bị từ chối
+    }
+    return this.prisma.user.update({
+      where: { id: userId },
+      data,
+      select: { id: true, fullName: true, baseFaceUrl: true, facePhotoVerified: true },
+    });
+  }
+
   // 3. Lấy tất cả người dùng (Cho Admin)
-  async findAll(query: { search?: string; role?: string }) {
+  async findAll(query: { search?: string; role?: string; pendingFace?: string }) {
     const where: any = {};
     
     if (query.role) {
       where.role = query.role;
     }
     
+    if (query.pendingFace === 'true') {
+      where.baseFaceUrl = { not: null };
+      where.facePhotoVerified = false;
+    }
+
     if (query.search) {
       where.OR = [
         { email: { contains: query.search, mode: 'insensitive' } },
@@ -82,6 +114,8 @@ async getUserInfo(userId: string) {
         fullName: true,
         role: true,
         avatarUrl: true,
+        baseFaceUrl: true,
+        facePhotoVerified: true,
         createdAt: true,
         isVerified: true,
       },

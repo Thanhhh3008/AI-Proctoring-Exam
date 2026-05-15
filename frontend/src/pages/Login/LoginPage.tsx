@@ -82,7 +82,7 @@ export default function LoginPage() {
             <div className="login-badge-dot"></div> Năm học 2025-2026
           </div>
 
-          <h1 className="login-left-title">Hệ thống<br />Quản lý<br />Trường Đại học</h1>
+          <h1 className="login-left-title">Nền tảng chia sẻ Khóa học<br />& Thi trực tuyến với sự giám sát của AI</h1>
 
           <p className="login-left-desc">
             Nâng tầm Giáo dục — Nền tảng thống nhất cho sinh viên, giảng viên và bộ phận quản lý được tích hợp công nghệ AI.
