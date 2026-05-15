@@ -22,6 +22,7 @@ const { Header, Sider, Content } = Layout;
 const AdminLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [adminInfo, setAdminInfo] = useState({ fullName: 'Admin', avatarUrl: '' });
+  const [accessDenied, setAccessDenied] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const BACKEND_URL = 'http://localhost:3000';
@@ -33,6 +34,15 @@ const AdminLayout: React.FC = () => {
   };
 
   useEffect(() => {
+    const userRole = localStorage.getItem('role');
+    if (userRole !== 'ADMIN') {
+      setAccessDenied(true);
+      const timer = setTimeout(() => {
+        navigate('/');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+
     const fullName = localStorage.getItem('fullName');
     const avatarUrl = localStorage.getItem('avatarUrl');
     if (fullName) {
@@ -118,6 +128,32 @@ const AdminLayout: React.FC = () => {
       navigate('/');
     }
   };
+
+  if (accessDenied) {
+    return (
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        height: '100vh', width: '100vw', backgroundColor: '#f8fafc', position: 'fixed', top: 0, left: 0, zIndex: 10000
+      }}>
+        <div style={{ fontSize: '80px', color: '#ef4444', marginBottom: '24px' }}>
+          <UserOutlined />
+        </div>
+        <h1 style={{ color: '#0f172a', marginBottom: '12px', fontSize: '28px' }}>Truy cập bị từ chối</h1>
+        <p style={{ color: '#64748b', marginBottom: '30px', fontSize: '16px', textAlign: 'center', maxWidth: '450px', lineHeight: '1.6' }}>
+          Rất tiếc! bạn không có quyền truy cập trang web này.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+          <button
+            onClick={() => navigate('/')}
+            style={{ padding: '12px 30px', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)' }}
+          >
+            Về trang chủ ngay
+          </button>
+          <p style={{ color: '#94a3b8', fontSize: '13px' }}>Hệ thống sẽ tự chuyển hướng sau vài giây...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Layout className="admin-layout">
