@@ -42,7 +42,7 @@ graph TD
         Exam_UI["Exam Workspace"]
         
         subgraph AI_Engine ["AI Proctoring Engine"]
-            FaceAPI["Face-api.js / TF.js<br/>(Face Detecion & Recognition)"]
+            FaceAPI["Face-api.js / MediaPipe,..<br/>(Face Detecion & Recognition)"]
             Behavior["Browser Behavior Monitor<br/>(Tab, Screen, Copy/Paste)"]
         end
         
