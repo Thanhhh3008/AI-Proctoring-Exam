@@ -337,7 +337,12 @@ export class ClassesService {
       include: {
         activities: {
           where: { type: { in: ['ASSIGNMENT', 'EXAM'] } }, // Sửa ở đây
-          include: { submissions: { where: { studentId: studentId } } },
+          include: { 
+            submissions: { where: { studentId: studentId } },
+            exam: {
+              include: { examSessions: { where: { studentId: studentId } } }
+            }
+          },
           orderBy: { createdAt: 'asc' }
         }
       }
@@ -349,19 +354,36 @@ export class ClassesService {
     let submittedCount = 0;
 
     const gradesList = activities.map((act: any) => {
-      const userSubmission = act.submissions[0];
-      const rawScore = userSubmission?.score;
-      const score = (rawScore !== null && rawScore !== undefined) ? parseFloat(rawScore.toString()) : null;
+      let score: number | null = null;
+      let hasFeedback = false;
+      let hasSubmitted = false;
+
+      if (act.type === 'ASSIGNMENT') {
+        const userSubmission = act.submissions[0];
+        if (userSubmission) hasSubmitted = true;
+        const rawScore = userSubmission?.score;
+        score = (rawScore !== null && rawScore !== undefined) ? parseFloat(rawScore.toString()) : null;
+        hasFeedback = !!userSubmission?.feedback;
+      } else if (act.type === 'EXAM') {
+        const examSession = act.exam?.examSessions[0];
+        if (examSession && (examSession.status === 'SUBMITTED' || examSession.status === 'GRADED' || examSession.status === 'TIMED_OUT' || examSession.status === 'FORCED_SUBMITTED')) {
+          hasSubmitted = true;
+        }
+        const rawScore = examSession?.totalScore;
+        score = (rawScore !== null && rawScore !== undefined) ? parseFloat(rawScore.toString()) : null;
+        hasFeedback = !!examSession?.teacherComment;
+      }
+
       const weight = act.type === 'ASSIGNMENT' ? 30 : 70;
 
-      if (userSubmission) submittedCount++;
+      if (hasSubmitted) submittedCount++;
 
       if (score !== null) {
         if (act.type === 'ASSIGNMENT') { totalAssignmentScore += score; gradedAssignmentCount++; }
         else if (act.type === 'EXAM') { totalExamScore += score; gradedExamCount++; } // Sửa ở đây
       }
 
-      return { activityId: act.id, activityTitle: act.title, activityType: act.type, score: score, weight: weight, hasFeedback: !!userSubmission?.feedback };
+      return { activityId: act.id, activityTitle: act.title, activityType: act.type, score: score, weight: weight, hasFeedback: hasFeedback };
     });
 
     const avgAssignment = gradedAssignmentCount > 0 ? (totalAssignmentScore / gradedAssignmentCount) : 0;

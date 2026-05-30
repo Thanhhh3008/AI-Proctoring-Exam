@@ -102,7 +102,8 @@ export class AuthService {
       },
     });
 
-    return { url: 'http://localhost:5173/login?verified=true' };
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost';
+    return { url: `${frontendUrl}/login?verified=true` };
   }
 
   // ==========================================

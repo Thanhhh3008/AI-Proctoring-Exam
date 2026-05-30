@@ -3,9 +3,9 @@ import { PrismaService } from '../shared/prisma/prisma.service';
 
 @Injectable()
 export class ExamsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
-  async getExamById(id: string, studentId?: string) { 
+  async getExamById(id: string, studentId?: string) {
     const exam = await this.prisma.exam.findUnique({
       where: { id },
       include: { examQuestions: { include: { question: true } } }
@@ -27,11 +27,11 @@ export class ExamsService {
     }
 
     let studentSessionStatus: string | null = null;
-    let studentScore: number | null = null; 
+    let studentScore: number | null = null;
     let studentSessionId: string | null = null;
-    
+
     let teacherComment: string | null = null;
-    
+
     if (studentId) {
       const session = await this.prisma.examSession.findUnique({
         where: { examId_studentId: { examId: id, studentId } }
@@ -65,7 +65,7 @@ export class ExamsService {
         durationMinutes: data.durationMinutes ? parseInt(data.durationMinutes, 10) : undefined,
         maxQuestions: data.maxQuestions ? parseInt(data.maxQuestions, 10) : undefined,
         generationRules: data.generationRules,
-        status: data.status, 
+        status: data.status,
         strictMode: data.strictMode,
         requireCamera: data.requireCamera
       }
@@ -73,7 +73,7 @@ export class ExamsService {
   }
 
   // =======================================================
-  // HÀM TIỆN ÍCH: BỐC ĐỀ NGẪU NHIÊN THEO LUẬT
+  // HÀM  BỐC ĐỀ NGẪU NHIÊN THEO LUẬT
   // =======================================================
   private async generateRandomQuestions(rules: any) {
     if (!rules || !rules.bankIds || rules.bankIds.length === 0) {
@@ -116,8 +116,8 @@ export class ExamsService {
     // 1. Kiểm tra session hiện có
     let session = await this.prisma.examSession.findUnique({
       where: { examId_studentId: { examId, studentId } },
-      include: { 
-        answers: { include: { question: true }, orderBy: { order: 'asc' } } 
+      include: {
+        answers: { include: { question: true }, orderBy: { order: 'asc' } }
       }
     });
 
@@ -185,7 +185,7 @@ export class ExamsService {
   // =======================================================
   // 2. LƯU NHÁP ĐÁP ÁN (GỌI TỪNG CÂU)
   // =======================================================
-  async updateDraftAnswer(sessionId: string, questionId: string, answer: string| null) {
+  async updateDraftAnswer(sessionId: string, questionId: string, answer: string | null) {
     return this.prisma.sessionAnswer.updateMany({
       where: { sessionId, questionId },
       data: { selectedAnswer: answer }
@@ -197,7 +197,7 @@ export class ExamsService {
   // =======================================================
   async submitExam(examId: string, studentId: string, payload: any) {
     const { answers, violationLogs } = payload;
-    
+
     const session = await this.prisma.examSession.findUnique({
       where: { examId_studentId: { examId, studentId } },
       include: { answers: { include: { question: true } } }
@@ -221,21 +221,21 @@ export class ExamsService {
         let achievedScore: number | null = null; // Mặc định null (Chờ chấm)
 
         if (q.questionType === 'MULTIPLE_CHOICE') {
-           // NẾU LÀ TRẮC NGHIỆM -> CHẤM TỰ ĐỘNG
-           if (studentAnswerStr && studentAnswerStr === q.correctAnswer) {
-             achievedScore = pointPerQuestion;
-             mcqScore += pointPerQuestion;
-           } else {
-             achievedScore = 0; // Sai là 0 điểm
-           }
+          // NẾU LÀ TRẮC NGHIỆM -> CHẤM TỰ ĐỘNG
+          if (studentAnswerStr && studentAnswerStr === q.correctAnswer) {
+            achievedScore = pointPerQuestion;
+            mcqScore += pointPerQuestion;
+          } else {
+            achievedScore = 0; // Sai là 0 điểm
+          }
         } else if (q.questionType === 'ESSAY') {
-           // NẾU LÀ TỰ LUẬN -> BẬT CỜ BÁO HIỆU & GIỮ NGUYÊN NULL ĐỂ GV CHẤM
-           hasEssay = true;
+          // NẾU LÀ TỰ LUẬN -> BẬT CỜ BÁO HIỆU & GIỮ NGUYÊN NULL ĐỂ GV CHẤM
+          hasEssay = true;
         }
-        
+
         await tx.sessionAnswer.update({
           where: { id: sa.id },
-          data: { 
+          data: {
             selectedAnswer: studentAnswerStr,
             achievedScore: achievedScore
           }
@@ -248,26 +248,26 @@ export class ExamsService {
         data: {
           status: 'SUBMITTED',
           submitTime: new Date(),
-          totalScore: hasEssay ? null : mcqScore 
+          totalScore: hasEssay ? null : mcqScore
         }
       });
 
       if (violationLogs && violationLogs.length > 0) {
         await tx.violationLog.create({
-           data: {
-             sessionId: session.id,
-             type: 'TAB_SWITCH',
-             metadata: { logs: violationLogs }
-           }
+          data: {
+            sessionId: session.id,
+            type: 'TAB_SWITCH',
+            metadata: { logs: violationLogs }
+          }
         });
       }
     });
 
-    return { 
-      success: true, 
-      message: hasEssay 
-        ? 'Nộp bài thành công! Phần tự luận đang chờ Giảng viên chấm điểm.' 
-        : 'Nộp bài thành công!', 
+    return {
+      success: true,
+      message: hasEssay
+        ? 'Nộp bài thành công! Phần tự luận đang chờ Giảng viên chấm điểm.'
+        : 'Nộp bài thành công!',
       score: hasEssay ? null : mcqScore.toFixed(2),
       hasEssay: hasEssay
     };
@@ -399,7 +399,7 @@ export class ExamsService {
     // Tìm câu trả lời
     const answer = await this.prisma.sessionAnswer.findUnique({
       where: { id: answerId },
-      include: { 
+      include: {
         question: true,
         session: {
           include: { answers: { include: { question: true } } }

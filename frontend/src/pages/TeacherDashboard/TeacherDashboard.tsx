@@ -359,7 +359,7 @@ export default function TeacherDashboard() {
 
       <main className={`td-main ${isSidebarCollapsed ? 'collapsed' : ''}`} style={{ backgroundColor: '#f8fafc' }}>
 
-        {/* === VIEW 1: DASHBOARD (Giữ nguyên) === */}
+        {/* === VIEW 1: DASHBOARD  */}
         {activeMenu === 'DASHBOARD' && (
           <div className="td-dash-wrapper">
             <div className="td-teacher-header">

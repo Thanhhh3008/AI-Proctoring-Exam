@@ -24,7 +24,7 @@ export interface ProctoringConfig {
 export const DEFAULT_PROCTORING_CONFIG: ProctoringConfig = {
   faceMatchThreshold: 0.55, //càng cao càng khó phân biệt
   headPoseYawThreshold: 20,//quay đầu quá 20 độ
-  headPosePitchThreshold: 20,//cúi đầu quá 20 độ
+  headPosePitchThreshold: 15,//cúi đầu quá 20 độ
   lookingAwayDuration: 5,//quay đầu quá 5 giây mới báo vi phạm
   faceAbsenceDuration: 5,//không thấy mặt quá 10 giây mới báo vi phạm
   objectDetectionInterval: 2000,//2s quét đt

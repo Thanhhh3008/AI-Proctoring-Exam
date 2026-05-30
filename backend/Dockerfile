@@ -1,26 +1,27 @@
-# Sử dụng Node.js bản stable
+# ──────────────────────────────────────────────
+# Build NestJS Backend
+# ──────────────────────────────────────────────
 FROM node:20-alpine
 
-# Tạo thư mục làm việc
+# Cài thêm OpenSSL (Prisma yêu cầu trên Alpine)
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
-# Copy package.json và package-lock.json
+# Cài dependencies trước (tận dụng Docker cache)
 COPY package*.json ./
-
-# Cài đặt dependencies
 RUN npm install
 
-# Copy toàn bộ mã nguồn
+# Copy toàn bộ source (bao gồm prisma/schema.prisma)
 COPY . .
 
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Build dự án
+# Build NestJS
 RUN npm run build
 
-# Mở cổng 3000
 EXPOSE 3000
 
-# Chạy ứng dụng
-CMD ["npm", "run", "start:prod"]
+# Sync schema DB (db push), sau đó start server
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/src/main"]

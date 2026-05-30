@@ -159,14 +159,19 @@ npm run dev
 Ứng dụng Frontend sẽ chạy tại: `http://localhost:5173`
 API Backend sẽ chạy tại: `http://localhost:3000`
 
-### 4. Triển khai bằng Docker 
-Hệ thống đã được cấu hình sẵn Docker để đóng gói toàn bộ dịch vụ.
+### 4. Khởi chạy nhanh với Docker (Khuyên dùng)
+Hệ thống đã được đóng gói hoàn chỉnh bằng Docker (PostgreSQL, NestJS, React/Nginx). Bạn không cần cài đặt Node.js hay Database trên máy thật.
+
 ```bash
-# Khởi chạy toàn bộ hệ thống (DB, Backend, Frontend)
-docker-compose up --build
+# Khởi chạy toàn bộ hệ thống chạy ngầm
+docker-compose up -d
+
+# Build lại hệ thống nếu có thay đổi code
+docker-compose up --build -d
 ```
-*(Lưu ý: Đảm bảo bạn đã cài đặt Docker Desktop trước khi chạy lệnh này)*
+Sau khi chạy thành công, truy cập:
+- **Frontend (Giao diện Web):** `http://localhost`
+- **Backend (API):** `http://localhost:3000`
+- **Database (PostgreSQL):** `localhost:5432`
 
-
----
-
+*(Lưu ý: Bạn cần cài đặt Docker Desktop trước khi chạy)*

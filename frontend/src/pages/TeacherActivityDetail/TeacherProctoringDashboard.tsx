@@ -323,7 +323,7 @@ export default function TeacherProctoringDashboard() {
                   <tr>
                     <th>Thí sinh</th>
                     <th>Trạng thái</th>
-                    <th>Mức độ vi phạm</th>
+                    <th>Số lần vi phạm</th>
                     <th>Hành động</th>
                   </tr>
                 </thead>

@@ -25,7 +25,7 @@ export class ObjectDetector {
       // Phải khớp CHÍNH XÁC version với package.json (1.25.1)
       ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.25.1/dist/';
       ort.env.wasm.numThreads = 1;
-      
+
       this.session = await ort.InferenceSession.create(MODEL_PATH, {
         executionProviders: ['wasm'],
         graphOptimizationLevel: 'all',
@@ -37,7 +37,7 @@ export class ObjectDetector {
       // Fallback: Thử không dùng CDN nếu CDN lỗi
       try {
         console.log('[ObjectDetector] Thử load không dùng CDN path...');
-        ort.env.wasm.wasmPaths = '/'; 
+        ort.env.wasm.wasmPaths = '/';
         this.session = await ort.InferenceSession.create(MODEL_PATH, { executionProviders: ['wasm'] });
         this.isLoaded = true;
       } catch (e2) {

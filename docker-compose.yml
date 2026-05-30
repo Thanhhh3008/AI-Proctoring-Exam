@@ -1,36 +1,64 @@
 version: '3.8'
 
 services:
-  # Database PostgreSQL
+  # ─────────────────────────────────────────────
+  # PostgreSQL Database
+  # ─────────────────────────────────────────────
   db:
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     container_name: eduexam_db
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: eduexam
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "123456"
+      POSTGRES_DB: OnlineExam
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d OnlineExam"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
-  # Backend NestJS
+  # ─────────────────────────────────────────────
+  # NestJS Backend
+  # ─────────────────────────────────────────────
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: eduexam_backend
     restart: always
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "postgresql://user:password@db:5432/eduexam?schema=public"
-      JWT_SECRET: "your_super_secret_key"
+      # Trỏ tới service "db" thay vì localhost
+      DATABASE_URL: "postgresql://postgres:123456@db:5432/OnlineExam?schema=public"
+      JWT_SECRET: "123456"
+      EMAIL_USER: "nthanh30082004@gmail.com"
+      EMAIL_PASS: "xpuqovmxezkemzrj"
+      NODE_ENV: production
+      FRONTEND_URL: "http://localhost"
     depends_on:
-      - db
+      db:
+        condition: service_healthy   
+    volumes:
+      # Giữ file uploads khi restart container
+      - ./backend/uploads:/app/uploads
 
-  # Frontend React
+  # ─────────────────────────────────────────────
+  # React/Vite Frontend (Nginx)
+  # ─────────────────────────────────────────────
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # URL backend nhìn từ trình duyệt của người dùng
+        VITE_API_URL: http://localhost:3000
     container_name: eduexam_frontend
     restart: always
     ports:
@@ -40,3 +68,4 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
