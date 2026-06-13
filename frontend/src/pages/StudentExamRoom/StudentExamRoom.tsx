@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
-import { FaPlay, FaExclamationTriangle, FaDesktop, FaClock, FaSpinner, FaCheckCircle, FaListOl, FaInfoCircle, FaUser } from 'react-icons/fa';
+import { FaPlay, FaExclamationTriangle, FaDesktop, FaClock, FaSpinner, FaCheckCircle, FaListOl, FaInfoCircle, FaUser, FaMobileAlt } from 'react-icons/fa';
 import { notification, message } from 'antd';
+import { QRCodeSVG } from 'qrcode.react';
 import './StudentExamRoom.css';
 
 // ===================== PROCTORING IMPORTS =====================
@@ -44,6 +45,11 @@ export default function StudentExamRoom() {
   const [proctoringLoading, setProctoringLoading] = useState(false);
   const proctoringEngineRef = useRef<ProctoringEngine | null>(null);
   const proctoringVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  // 📱 Mobile Camera states
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [mobileConnected, setMobileConnected] = useState(false);
+  const [mobileQRUrl, setMobileQRUrl] = useState('');
 
   // ========================================================
   // CUSTOM MODAL (THAY THẾ WINDOW.CONFIRM KHI NỘP BÀI)
@@ -220,8 +226,28 @@ export default function StudentExamRoom() {
       await video.play();
       proctoringVideoRef.current = video;
       if (proctoringEngineRef.current) {
-        proctoringEngineRef.current.connectWebSocket(sId, examId || '', studentName);
-        proctoringEngineRef.current.start(video);
+        const engine = proctoringEngineRef.current;
+        engine.connectWebSocket(sId, examId || '', studentName);
+        engine.start(video);
+
+        // 📱 Wire mobile camera callbacks
+        engine.onMobileConnected = () => {
+          setMobileConnected(true);
+          setShowQRModal(false); // Tự đóng QR modal khi điện thoại kết nối
+          notification.success({
+            message: '📱 Camera phụ đã kết nối',
+            description: 'Điện thoại của bạn đã được nhận diện làm camera giám sát phụ.',
+            placement: 'topRight', duration: 4,
+          });
+        };
+        engine.onMobileDisconnected = () => {
+          setMobileConnected(false);
+          notification.error({
+            message: '⚠️ Camera phụ ngắt kết nối',
+            description: 'Hành động này đã được ghi nhận vào hệ thống giám sát.',
+            placement: 'topRight', duration: 6,
+          });
+        };
       }
     } catch (err) {
       console.error('[Proctoring] Không mở được webcam:', err);
@@ -306,7 +332,7 @@ export default function StudentExamRoom() {
           // Tải ảnh xác nhận từ server trước khi khởi động engine
           await loadVerifiedFacePhoto();
           await startProctoringMonitor(res.data.sessionId);
-          // Lưu ảnh tham chiếu vào DB (URL từ baseFaceUrl đã ưu được trong ref)
+          // Lưu ảnh tham chiếu vào DB
           const refUrl = (proctoringEngineRef.current as any)?._referencePhotoUrl;
           if (refUrl) {
             try {
@@ -315,8 +341,13 @@ export default function StudentExamRoom() {
               console.warn('[Proctoring] Không lưu được reference photo:', e);
             }
           }
+
+          // 📱 Tạo QR URL cho camera phụ và hiện modal
+          const baseUrl = window.location.origin;
+          const qrUrl = `${baseUrl}/mobile-cam?sessionId=${res.data.sessionId}&examId=${examId}&studentName=${encodeURIComponent(studentName)}`;
+          setMobileQRUrl(qrUrl);
+          setShowQRModal(true);
         } else {
-          // Không có camera → chỉ kết nối socket để báo tab switch và các vi phạm khác
           proctoringEngineRef.current?.connectWebSocket(res.data.sessionId, examId || '', studentName);
         }
       }
@@ -653,6 +684,55 @@ export default function StudentExamRoom() {
       {/* ================= WEBCAM OVERLAY (góc phải dưới) ================= */}
       {isStarted && examInfo?.requireCamera && webcamStream && (
         <ProctoringOverlay videoStream={webcamStream} status={proctoringStatus} />
+      )}
+
+      {/* ================= QR CODE MODAL — CAMERA PHỤ ================= */}
+      {showQRModal && mobileQRUrl && (
+        <div className="custom-modal-overlay">
+          <div className="custom-modal" style={{ maxWidth: 400, textAlign: 'center' }}>
+            <FaMobileAlt size={32} color="#6366f1" style={{ marginBottom: 12 }} />
+            <h3 className="custom-modal-title">📱 Kết nối Camera Phụ</h3>
+            <p className="custom-modal-msg" style={{ marginBottom: 16 }}>
+              Dùng điện thoại quét mã QR bên dưới để bật camera giám sát phụ. Đặt điện thoại <strong>bên cạnh màn hình</strong>, camera hướng vào bàn tay và bàn phím.
+            </p>
+            <div style={{ display: 'inline-block', padding: 12, background: 'white', borderRadius: 12, marginBottom: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}>
+              <QRCodeSVG value={mobileQRUrl} size={180} level="M" />
+            </div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 20, wordBreak: 'break-all', padding: '0 8px' }}>
+              {mobileQRUrl}
+            </div>
+            <div className="custom-modal-actions">
+              <button
+                className="btn-modal-cancel"
+                onClick={() => setShowQRModal(false)}
+              >
+                Bỏ qua (không dùng camera phụ)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Badge trạng thái camera phụ (góc trên phải, khi đang thi) */}
+      {isStarted && examInfo?.requireCamera && (
+        <div
+          style={{
+            position: 'fixed', top: 16, right: 16, zIndex: 1000,
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: mobileConnected ? '#052e16' : '#1e293b',
+            border: `1px solid ${mobileConnected ? '#16a34a' : '#475569'}`,
+            borderRadius: 20, padding: '6px 12px',
+            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            color: mobileConnected ? '#4ade80' : '#94a3b8',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            transition: 'all 0.3s',
+          }}
+          onClick={() => !mobileConnected && mobileQRUrl && setShowQRModal(true)}
+          title={mobileConnected ? 'Camera phụ đang hoạt động' : 'Nhấn để mở QR kết nối camera phụ'}
+        >
+          <FaMobileAlt size={11} />
+          {mobileConnected ? '🟢 Camera phụ: On' : '⚪ Camera phụ: Chưa kết nối'}
+        </div>
       )}
     </div>
   );

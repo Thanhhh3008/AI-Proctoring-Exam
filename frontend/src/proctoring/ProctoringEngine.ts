@@ -38,6 +38,12 @@ export class ProctoringEngine {
   // Lưu landmarks từ face-api.js để dùng làm fallback cho head pose
   private lastLandmarks: any = null;
 
+  // 📱 Mobile camera state
+  isMobileConnected = false;
+  lastMobileFrameUrl: string | null = null;  // Frame cuối từ điện thoại (để giảng viên xem)
+  onMobileConnected?: (studentName: string) => void;
+  onMobileDisconnected?: () => void;
+
   // Cooldown tránh spam vi phạm cùng loại
   private lastViolationTime: Record<string, number> = {};
   private violationCooldownMs = 10000;
@@ -81,6 +87,26 @@ export class ProctoringEngine {
 
   connectWebSocket(sessionId: string, examId: string, studentName: string) {
     this.wsClient.connect(sessionId, examId, studentName);
+
+    // 📱 Wire mobile camera callbacks
+    this.wsClient.onMobileConnected = (data) => {
+      this.isMobileConnected = true;
+      this.onMobileConnected?.(data.studentName);
+      console.log('[Engine] 📱 Camera phụ đã kết nối');
+    };
+
+    this.wsClient.onMobileDisconnected = () => {
+      this.isMobileConnected = false;
+      this.lastMobileFrameUrl = null;
+      this.onMobileDisconnected?.();
+      // Báo vi phạm ngắt kết nối
+      this.emitViolation('MOBILE_DISCONNECTED', { reason: 'Điện thoại phụ ngắt kết nối' });
+      console.warn('[Engine] 📱 Camera phụ ngắt kết nối — ghi vi phạm');
+    };
+
+    this.wsClient.onMobileFrame = (frameData, timestamp) => {
+      this.processMobileFrame(frameData, timestamp);
+    };
   }
 
   // ============================================
@@ -268,7 +294,7 @@ export class ProctoringEngine {
 }
 
   // ============================================
-  // YOLOv8 — Phát hiện thiết bị (mỗi 3 giây)
+  // YOLOv8 — Phát hiện thiết bị qua webcam (mỗi 3 giây)
   // ============================================
   private async runObjectDetection() {
     if (!this.videoElement || !this.isRunning || !this.objectDetector.isReady()) return;
@@ -279,6 +305,38 @@ export class ProctoringEngine {
         this.emitViolation('PHONE_DETECTED', { objects: result.objects.map(o => `${o.className} (${(o.confidence * 100).toFixed(0)}%)`) });
       }
     } catch (_) { }
+  }
+
+  // ============================================
+  // 📱 XỬ LÝ FRAME TỪ CAMERA ĐIỆN THOẠI PHỤ
+  // Tái dụng ObjectDetector (YOLOv8) đang có sẵn
+  // ============================================
+  private async processMobileFrame(frameData: string, _timestamp: number) {
+    if (!this.isRunning || !this.objectDetector.isReady()) return;
+
+    // Lưu frame mới nhất để giảng viên xem
+    this.lastMobileFrameUrl = frameData;
+
+    try {
+      // Decode base64 → HTMLImageElement để đưa vào YOLOv8
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject();
+        img.src = frameData;
+      });
+
+      const result = await this.objectDetector.detect(img as any, this.config.objectDetectionConfidence);
+      if (result.detected) {
+        console.warn('[Engine] 📱 [Mobile Camera] Phát hiện vật thể:', result.objects);
+        this.emitViolation('PHONE_DETECTED_MOBILE', {
+          source: 'mobile_camera',
+          objects: result.objects.map(o => `${o.className} (${(o.confidence * 100).toFixed(0)}%)`),
+        });
+      }
+    } catch (err) {
+      console.warn('[Engine] Lỗi xử lý mobile frame:', err);
+    }
   }
 
   // ============================================

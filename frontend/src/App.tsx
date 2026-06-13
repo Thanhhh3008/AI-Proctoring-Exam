@@ -35,6 +35,7 @@ import AdminProctoring from './pages/AdminProctoring/AdminProctoring';
 import AdminSettings from './pages/AdminSettings/AdminSettings';
 import AdminFaceApproval from './pages/AdminFaceApproval/AdminFaceApproval';
 import AdminClassList from './pages/AdminClassList/AdminClassList';
+import MobileCam from './pages/MobileCam/MobileCam';
 function App() {
   return (
     <BrowserRouter>
@@ -76,6 +77,7 @@ function App() {
 
 
         <Route path="/exam-room/:examId" element={<StudentExamRoom />} />
+        <Route path="/mobile-cam" element={<MobileCam />} />
         <Route path="/teacher/exam/:examId/session/:sessionId/grade" element={<TeacherExamGradingDetail />} />
         <Route path="/student/exam/:examId/review/:sessionId" element={<StudentExamReview />} />
 

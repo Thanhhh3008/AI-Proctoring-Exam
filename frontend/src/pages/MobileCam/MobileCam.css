@@ -1,0 +1,280 @@
+/* ================================================
+   MOBILE CAM PAGE — Mobile-first, tối giản, dễ dùng
+   ================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.mc-root {
+  font-family: 'Inter', sans-serif;
+  min-height: 100dvh;
+  background: #0f172a;
+  color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== SETUP PHASE ===== */
+.mc-setup {
+  padding: 28px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.mc-logo {
+  font-size: 52px;
+  text-align: center;
+  line-height: 1;
+  margin-bottom: -4px;
+}
+
+.mc-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f1f5f9;
+  text-align: center;
+}
+
+.mc-subtitle {
+  font-size: 14px;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.mc-guide-box {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.mc-guide-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f59e0b;
+  margin-bottom: 16px;
+  letter-spacing: 0.3px;
+}
+
+.mc-guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mc-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13.5px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.mc-step-num {
+  min-width: 26px;
+  height: 26px;
+  background: #6366f1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.mc-session-info {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mc-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.mc-info-label { color: #64748b; }
+.mc-info-value { color: #e2e8f0; font-weight: 600; }
+.mc-mono { font-family: monospace; background: #0f172a; padding: 2px 8px; border-radius: 6px; }
+
+.mc-btn-start {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+}
+.mc-btn-start:active { transform: scale(0.97); }
+
+/* ===== CENTER (connecting/error) ===== */
+.mc-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.mc-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #334155;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.mc-connecting-text {
+  font-size: 16px;
+  color: #94a3b8;
+}
+
+.mc-error-icon { font-size: 52px; }
+.mc-error-title { font-size: 20px; font-weight: 700; color: #f87171; }
+.mc-error-msg { font-size: 14px; color: #94a3b8; line-height: 1.6; max-width: 320px; }
+
+.mc-btn-retry {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.mc-btn-retry:active { background: #334155; }
+
+/* ===== ACTIVE PHASE ===== */
+.mc-active {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mc-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: #052e16;
+  border-bottom: 1px solid #14532d;
+}
+
+.mc-live-dot {
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.mc-live-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #22c55e;
+  letter-spacing: 1px;
+}
+
+.mc-video-wrapper {
+  position: relative;
+  flex: 1;
+  background: #000;
+  overflow: hidden;
+}
+
+.mc-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mc-video-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Khung hướng dẫn vùng cần quay */
+.mc-frame-guide {
+  width: 75%;
+  height: 55%;
+  border: 2px dashed rgba(99, 102, 241, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.15);
+}
+
+.mc-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 14px 20px;
+  background: #1e293b;
+  border-top: 1px solid #334155;
+}
+
+.mc-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.mc-stat-label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mc-stat-value {
+  font-size: 17px;
+  font-weight: 700;
+  color: #e2e8f0;
+  font-family: monospace;
+}
+
+.mc-warning-box {
+  padding: 14px 18px;
+  background: #431407;
+  border-top: 1px solid #7c2d12;
+  font-size: 13px;
+  color: #fca5a5;
+  text-align: center;
+  line-height: 1.5;
+}

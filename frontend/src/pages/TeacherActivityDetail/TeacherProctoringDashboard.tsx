@@ -15,8 +15,10 @@ const VIOLATION_LABELS: Record<string, string> = {
   NO_FACE: 'Không thấy mặt',
   DIFFERENT_PERSON: 'Sai người thi',
   LOOKING_AWAY: 'Nghi vấn nhìn chỗ khác',
-  PHONE_DETECTED: 'Dùng điện thoại',
+  PHONE_DETECTED: 'Dùng điện thoại (Webcam)',
   STATIC_IMAGE: 'Sử dụng ảnh tĩnh',
+  PHONE_DETECTED_MOBILE: '📱 Phát hiện qua camera phụ',
+  MOBILE_DISCONNECTED: '📱 Camera phụ ngắt kết nối',
 };
 
 const VIOLATION_COLORS: Record<string, string> = {
@@ -29,6 +31,8 @@ const VIOLATION_COLORS: Record<string, string> = {
   LOOKING_AWAY: '#f97316',
   PHONE_DETECTED: '#dc2626',
   STATIC_IMAGE: '#0ea5e9',
+  PHONE_DETECTED_MOBILE: '#7c3aed',
+  MOBILE_DISCONNECTED: '#b45309',
 };
 
 export default function TeacherProctoringDashboard() {

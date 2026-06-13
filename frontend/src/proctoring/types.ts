@@ -1,6 +1,8 @@
 export type ViolationType =
   | 'MULTIPLE_FACES' | 'NO_FACE' | 'DIFFERENT_PERSON' | 'LOOKING_AWAY'
-  | 'PHONE_DETECTED' | 'STATIC_IMAGE' | 'TAB_SWITCH' | 'FULLSCREEN_EXITED' | 'COPY_PASTE';
+  | 'PHONE_DETECTED' | 'STATIC_IMAGE' | 'TAB_SWITCH' | 'FULLSCREEN_EXITED' | 'COPY_PASTE'
+  | 'PHONE_DETECTED_MOBILE'   // Phát hiện vật thể qua camera điện thoại phụ
+  | 'MOBILE_DISCONNECTED';    // Điện thoại phụ ngắt kết nối đột ngột
 
 export interface ViolationEvent {
   type: ViolationType;
