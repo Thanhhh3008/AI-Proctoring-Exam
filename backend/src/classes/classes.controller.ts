@@ -27,35 +27,31 @@ export class ClassesController {
     return this.classesService.getClassesByStudent(userId);
   }
 
-@UseGuards(JwtAuthGuard) 
+  @UseGuards(JwtAuthGuard) 
   @Get(':id/detail')
   async getClassDetailForTeacher(@Param('id') classId: string, @Req() req) {
     const userId = req.user.id || req.user.userId;
     const userRole = req.user.role;
 
-    
     const classInfo = await this.classesService.getClassDetail(classId);
 
- 
     if (userRole !== 'ADMIN' && (userRole === 'STUDENT' || classInfo.course.teacherId !== userId)) {
       throw new ForbiddenException('Chỉ có giảng viên phụ trách mới có quyền quản lý lớp học này.');
     }
 
-
     return classInfo;
   }
+
   @Get(':id/studentclass')
   async getClassDetailForStudent(@Param('id') id: string) {
     return this.classesService.getClassDetail(id);
   }
-
 
   @Post(':id/sections')
   async createSection(@Param('id') classId: string, @Body() data: { title: string }) {
     return this.classesService.createSection(classId, data.title);
   }
 
-  // Trong hàm createClass:
   @Post()
   async createClass(
     @Request() req,
@@ -63,8 +59,6 @@ export class ClassesController {
   ) {
     const teacherId = req.user.id || req.user.userId;
     const parsedMax = parseInt(body.maxStudents as any, 10);
-    
-    // SỬA TẠI ĐÂY: Dùng parseFloat thay vì parseInt
     const parsedPrice = parseFloat(body.price as any); 
     
     return this.classesService.createClass({

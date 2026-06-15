@@ -23,7 +23,7 @@ export class CloudinaryService {
       const uploadStream = cloudinary.uploader.upload_stream(
         { folder, resource_type: 'auto' },
         (error, result) => {
-          if (error) return reject(error);
+          if (error || !result) return reject(error ?? new Error('Upload thất bại'));
           resolve(result.secure_url);
         },
       );

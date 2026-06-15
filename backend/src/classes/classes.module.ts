@@ -5,6 +5,7 @@ import { MailService } from '../shared/mail/mail.service';
 import { PublicClassesController } from './public-classes.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from '../upload/upload.module';
+
 @Module({
   imports: [
     JwtModule.register({}),

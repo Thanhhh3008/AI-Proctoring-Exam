@@ -337,7 +337,7 @@ export class ClassesService {
       include: {
         activities: {
           where: { type: { in: ['ASSIGNMENT', 'EXAM'] } }, // Sửa ở đây
-          include: { 
+          include: {
             submissions: { where: { studentId: studentId } },
             exam: {
               include: { examSessions: { where: { studentId: studentId } } }
@@ -642,7 +642,7 @@ export class ClassesService {
       updateData.price = price;
     }
 
-    if (body.coverImageUrl) updateData.coverImageUrl = body.coverImageUrl; // URL từ Cloudinary (do controller set)
+    if (file) updateData.coverImageUrl = `/uploads/courses/${file.filename}`;
 
     try {
       const updatedClass = await this.prisma.class.update({
