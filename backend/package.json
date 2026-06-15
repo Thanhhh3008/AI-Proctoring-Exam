@@ -33,6 +33,8 @@
     "axios": "^1.15.2",
     "backend": "file:",
     "bcrypt": "^6.0.0",
+    "cloudinary": "^1.41.3",
+    "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^8.0.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

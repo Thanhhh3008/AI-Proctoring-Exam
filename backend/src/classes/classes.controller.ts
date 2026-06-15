@@ -5,21 +5,16 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import * as fs from 'fs';
-
-// Hàm hỗ trợ tạo thư mục nếu chưa tồn tại
-const ensureExists = (dir: string) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-};
+import { memoryStorage } from 'multer';
+import { CloudinaryService } from '../upload/cloudinary.service';
 
 @Controller('classes')
 @UseGuards(JwtAuthGuard) 
 export class ClassesController {
-  constructor(private readonly classesService: ClassesService) {}
+  constructor(
+    private readonly classesService: ClassesService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Get('my-classes')
   async getMyClasses(@Request() req) {
@@ -180,18 +175,7 @@ export class ClassesController {
   // API CẬP NHẬT CÀI ĐẶT LỚP & UPLOAD ẢNH
   @Put(':id/settings')
   @UseInterceptors(FileInterceptor('coverImage', {
-    storage: diskStorage({
-      destination: (req, file, cb) => {
-        const uploadPath = './uploads/courses';
-        ensureExists(uploadPath);
-        cb(null, uploadPath);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = extname(file.originalname);
-        cb(null, `cover-${uniqueSuffix}${ext}`);
-      }
-    }),
+    storage: memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
       if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
@@ -205,6 +189,10 @@ export class ClassesController {
     @Body() body: any,
     @UploadedFile() file?: Express.Multer.File
   ) {
+    // Upload ảnh lên Cloudinary nếu có file
+    if (file) {
+      body.coverImageUrl = await this.cloudinaryService.uploadBuffer(file.buffer, 'courses');
+    }
     return this.classesService.updateClassSettings(classId, body, file);
   }
 

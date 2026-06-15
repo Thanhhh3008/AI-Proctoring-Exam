@@ -8,38 +8,34 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
+import { CloudinaryService } from '../upload/cloudinary.service';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Get('me')
   async getMe(@Request() req) {
     const userId = req.user.id || req.user.userId || req.user.sub;
-    // Gọi thông qua Service
     return this.usersService.getUserInfo(userId);
   }
 
   @Patch('profile')
   @UseInterceptors(
     FileInterceptor('avatar', {
-      storage: diskStorage({
-        // Đã chỉnh về ./uploads để khớp với express.static của bạn
-        destination: './uploads/avatars', 
-        filename: (req, file, cb) => {
-          const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-          return cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
+      storage: memoryStorage(),
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
           return cb(new BadRequestException('Chỉ chấp nhận file ảnh!'), false);
         }
         cb(null, true);
       },
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
     }),
   )
   async updateProfile(
@@ -51,8 +47,8 @@ export class UsersController {
     const data: any = { fullName: body.fullName };
     
     if (file) {
-      // Trả về /uploads/... để khớp với router tĩnh
-      data.avatarUrl = `/uploads/avatars/${file.filename}`;
+      // Upload lên Cloudinary, lấy URL thật
+      data.avatarUrl = await this.cloudinaryService.uploadBuffer(file.buffer, 'avatars');
     }
     return this.usersService.updateProfile(userId, data);
   }
@@ -63,17 +59,11 @@ export class UsersController {
     return this.usersService.changePassword(userId, dto);
   }
 
-  // --- UPLOAD ẢNH CHÂN DUNG (ảNH XÁC THỰC KHUÔN MẶT) ---
+  // --- UPLOAD ẢNH CHÂN DUNG (ảnh XÁC THỰC KHUÔN MẶT) ---
   @Post('face-photo')
   @UseInterceptors(
     FileInterceptor('facePhoto', {
-      storage: diskStorage({
-        destination: './uploads/face-photos',
-        filename: (req, file, cb) => {
-          const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-          return cb(null, `face_${randomName}${extname(file.originalname)}`);
-        },
-      }),
+      storage: memoryStorage(),
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
           return cb(new BadRequestException('Chỉ chấp nhận file ảnh JPG, JPEG, PNG!'), false);
@@ -89,7 +79,8 @@ export class UsersController {
   ) {
     if (!file) throw new BadRequestException('Định kèm ảnh chân dung!');
     const userId = req.user.id || req.user.userId || req.user.sub;
-    const facePhotoUrl = `/uploads/face-photos/${file.filename}`;
+    // Upload lên Cloudinary, lấy URL thật
+    const facePhotoUrl = await this.cloudinaryService.uploadBuffer(file.buffer, 'face-photos');
     return this.usersService.updateFacePhoto(userId, facePhotoUrl);
   }
 

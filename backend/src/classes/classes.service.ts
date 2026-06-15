@@ -642,7 +642,7 @@ export class ClassesService {
       updateData.price = price;
     }
 
-    if (file) updateData.coverImageUrl = `/uploads/courses/${file.filename}`;
+    if (body.coverImageUrl) updateData.coverImageUrl = body.coverImageUrl; // URL từ Cloudinary (do controller set)
 
     try {
       const updatedClass = await this.prisma.class.update({
