@@ -5,6 +5,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { CloudinaryService } from '../upload/cloudinary.service';
+import { ActivitiesService } from './activities.service';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard'; 
 
 @Controller('activities')
 @UseGuards(JwtAuthGuard) 
@@ -54,7 +56,7 @@ export class ActivitiesController {
   @Post(':id/submit')
   @UseInterceptors(FileInterceptor('file', {
     storage: memoryStorage(),
-    limits: { fileSize: 20 * 1024 * 1024 }, // Giới hạn 20MB
+    limits: { fileSize: 10 * 1024 * 1024 } // Giới hạn 10MB
   }))
   async submitAssignment(
     @Param('id') activityId: string,
@@ -67,7 +69,7 @@ export class ActivitiesController {
 
     const studentId = req.user.id || req.user.userId || req.user.sub;
     
-    // Upload thẳng file nộp bài (PDF, Docx, Zip...) lên Cloudinary
+    // Upload file lên Cloudinary (hoặc lưu local nếu chạy dev)
     const fileUrl = await this.cloudinaryService.uploadBuffer(file.buffer, 'submissions');
 
     // Gọi Service để lưu thông tin vào DB
