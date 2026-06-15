@@ -3,22 +3,16 @@ import {
   UseInterceptors, UploadedFile, Request, BadRequestException 
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, parse } from 'path';
-import { ActivitiesService } from './activities.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard'; 
-import * as fs from 'fs';
-
-// Đảm bảo thư mục lưu bài nộp tồn tại
-const submissionDir = './uploads/submissions';
-if (!fs.existsSync(submissionDir)) {
-  fs.mkdirSync(submissionDir, { recursive: true });
-}
+import { memoryStorage } from 'multer';
+import { CloudinaryService } from '../upload/cloudinary.service';
 
 @Controller('activities')
 @UseGuards(JwtAuthGuard) 
 export class ActivitiesController {
-  constructor(private readonly activitiesService: ActivitiesService) {}
+  constructor(
+    private readonly activitiesService: ActivitiesService,
+    private readonly cloudinaryService: CloudinaryService
+  ) {}
 
   @Get(':id')
   async getActivityDetail(@Param('id') id: string) {
@@ -59,31 +53,8 @@ export class ActivitiesController {
   // =========================================================
   @Post(':id/submit')
   @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: submissionDir, // Thư mục lưu file trên server
-      filename: (req, file, cb) => {
-        // 1. Tách tên gốc và phần mở rộng
-        const fileInfo = parse(file.originalname);
-        const originalName = fileInfo.name;
-
-        // 2. Làm sạch tên file (Bỏ khoảng trắng, ký tự có dấu, ký tự đặc biệt)
-        let sanitizedName = originalName
-          .normalize('NFD').replace(/[\u0300-\u036f]/g, '') 
-          .replace(/\s+/g, '_') 
-          .replace(/[^a-zA-Z0-9_\-]/g, ''); 
-
-        // 3. Tạo 4 số ngẫu nhiên từ 1000 đến 9999
-        const randomNum = Math.floor(1000 + Math.random() * 9000);
-
-        // 4. Lấy phần mở rộng
-        const fileExtName = extname(file.originalname);
-
-        // 5. Kết hợp: tenfilegoc_1234.pdf
-        const finalFileName = `${sanitizedName}_${randomNum}${fileExtName}`;
-        
-        cb(null, finalFileName);
-      }
-    })
+    storage: memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 }, // Giới hạn 20MB
   }))
   async submitAssignment(
     @Param('id') activityId: string,
@@ -95,7 +66,9 @@ export class ActivitiesController {
     }
 
     const studentId = req.user.id || req.user.userId || req.user.sub;
-    const fileUrl = `/uploads/submissions/${file.filename}`;
+    
+    // Upload thẳng file nộp bài (PDF, Docx, Zip...) lên Cloudinary
+    const fileUrl = await this.cloudinaryService.uploadBuffer(file.buffer, 'submissions');
 
     // Gọi Service để lưu thông tin vào DB
     return this.activitiesService.submitAssignment(activityId, studentId, fileUrl);
